@@ -424,7 +424,7 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
             <table className="w-full border-collapse text-xs" style={{minWidth:650}}>
               <thead>
                 <tr className="bg-white/5">
-                  {["Vessel","Rank","Company","Type","GRT/GT","Sign On","Sign Off"].map((h)=>(
+                  {["Vessel","Rank","Type","GRT/GT","Sign On","Sign Off","Company"].map((h)=>(
                     <th key={h} className="border-b border-white/10 px-3 py-1.5 text-left text-[9px] font-semibold uppercase tracking-widest text-slate-500 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -436,11 +436,11 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
                       <tr key={r.id} className="border-t border-white/5">
                         <td className="px-3 py-2 text-slate-200 whitespace-nowrap">{r.vessel||"—"}</td>
                         <td className="px-3 py-2 text-teal-400 font-medium whitespace-nowrap">{r.rank||"—"}</td>
-                        <td className="px-3 py-2 text-slate-300 whitespace-nowrap max-w-[150px] truncate" title={r.company}>{r.company||"—"}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.vessel_type||"—"}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.gt||"—"}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_on)}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_off)}</td>
+                        <td className="px-3 py-2 text-slate-300 whitespace-nowrap max-w-[150px] truncate" title={r.company}>{r.company||"—"}</td>
                       </tr>
                     ))
                 }
