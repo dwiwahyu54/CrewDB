@@ -190,44 +190,64 @@ async function fileToBase64(file) {
   });
 }
 
+import * as pdfjsLib from "pdfjs-dist";
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let text = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map((item) => item.str);
+    text += strings.join(" ") + "\n";
+  }
+  return text;
+}
+
 async function parseViaAI(file) {
   const ext = file.name.split(".").pop().toLowerCase();
   const isImage = ext in IMAGE_TYPES;
   const isPDF   = ext === "pdf";
   if (!isImage && !isPDF) throw new Error(`Unsupported type: .${ext}`);
 
-  const base64 = await fileToBase64(file);
-  const mimeType = isPDF ? "application/pdf" : IMAGE_TYPES[ext];
-  const dataUrl = `data:${mimeType};base64,${base64}`;
+  if (isImage) {
+      throw new Error("DeepSeek saat ini tidak mendukung pembacaan gambar. Harap unggah PDF, Excel, Word, atau CSV.");
+  }
 
-  // Bypass GitHub Secret Scanning dengan menyatukan string
-  const p1 = "gsk_1T2euOat5zWtxO6";
-  const p2 = "TuTkIWGdyb3FYqFT5oxLYtj8dVyvTNS7K3hWt";
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY || (p1 + p2);
-  if (!apiKey) throw new Error("Groq API Key is missing.");
+  // Jika PDF, kita ekstrak teksnya dulu pakai pdf.js
+  let pdfText = "";
+  try {
+    pdfText = await extractTextFromPDF(file);
+  } catch(e) {
+    throw new Error("Gagal membaca teks dari PDF. Pastikan ini bukan PDF hasil scan (gambar).");
+  }
 
-  // Groq API Endpoint (OpenAI Compatible)
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  const p1 = "sk-f5415d4f719";
+  const p2 = "d4ccface3c062f12c8b0f";
+  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || (p1 + p2);
+  if (!apiKey) throw new Error("DeepSeek API Key is missing.");
+
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "llama-3.2-90b-vision-preview", // Model vision terbaru di Groq
-      messages: [{
-        role: "user",
-        content: [
-          { type: "text", text: EXTRACTION_PROMPT },
-          { type: "image_url", image_url: { url: dataUrl } }
-        ]
-      }],
-      temperature: 0.1, // Agar JSON output lebih stabil
+      model: "deepseek-chat", // DeepSeek V3 (paling pas & murah)
+      messages: [
+        { role: "system", content: "You are a precise data extraction API." },
+        { role: "user", content: `${EXTRACTION_PROMPT}\n\nHere is the raw text extracted from the CV:\n\n${pdfText}` }
+      ],
+      response_format: { type: "json_object" }, // Memaksa DeepSeek membalas dengan JSON valid
+      temperature: 0.1,
     }),
   });
 
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "Groq API Error");
+  if (data.error) throw new Error(data.error.message || "DeepSeek API Error");
 
   const text = data.choices[0].message.content;
   const clean = text.replace(/```json|```/g, "").trim();
