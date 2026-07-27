@@ -716,14 +716,12 @@ export default function App() {
     setCrews((prev) => {
       let next = [...prev];
       newCrews.forEach((nc) => {
-        // Cari apakah kru ini sudah ada di database (berdasarkan Buku Pelaut, Paspor, atau Nama+TglLahir)
+        // Cari apakah kru ini sudah ada di database (HANYA berdasarkan Nama Lengkap dan Tanggal Lahir)
         const existingIdx = next.findIndex((c) => {
-          const matchSeaman = nc.seaman_no && c.seaman_no && nc.seaman_no === c.seaman_no;
-          const matchPassport = nc.passport_no && c.passport_no && nc.passport_no === c.passport_no;
           const matchNameDob = nc.name && c.name && nc.dob && c.dob && 
-                               nc.name.toLowerCase() === c.name.toLowerCase() && 
+                               nc.name.trim().toLowerCase() === c.name.trim().toLowerCase() && 
                                nc.dob === c.dob;
-          return matchSeaman || matchPassport || matchNameDob;
+          return matchNameDob;
         });
 
         if (existingIdx >= 0) {
