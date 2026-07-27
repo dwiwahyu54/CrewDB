@@ -198,35 +198,31 @@ async function parseViaAI(file) {
 
   const base64 = await fileToBase64(file);
   const mimeType = isPDF ? "application/pdf" : IMAGE_TYPES[ext];
-  const dataUrl = `data:${mimeType};base64,${base64}`;
 
-  // Mengambil API Key dari .env atau fallback ke string (JANGAN komit API key asli ke repo umum)
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "TARUH_API_KEY_OPENROUTER_DI_SINI";
+  // Mengambil API Key dari .env (Google AI Studio)
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) throw new Error("Gemini API Key is missing. Check your .env or Vercel settings.");
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  // Memanggil API Gemini langsung
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-      "HTTP-Referer": window.location.origin,
-      "X-Title": "CrewDB"
     },
     body: JSON.stringify({
-      model: "meta-llama/llama-3.2-11b-vision-instruct:free",
-      messages: [{
-        role: "user",
-        content: [
-          { type: "text", text: EXTRACTION_PROMPT },
-          { type: "image_url", image_url: { url: dataUrl } }
+      contents: [{
+        parts: [
+          { text: EXTRACTION_PROMPT },
+          { inline_data: { mime_type: mimeType, data: base64 } }
         ]
       }]
     }),
   });
 
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "API Error");
+  if (data.error) throw new Error(data.error.message || "Gemini API Error");
 
-  const text = data.choices[0].message.content;
+  const text = data.candidates[0].content.parts[0].text;
   const clean = text.replace(/```json|```/g, "").trim();
   const json = JSON.parse(clean);
   const crew = jsonToCrew(json);
