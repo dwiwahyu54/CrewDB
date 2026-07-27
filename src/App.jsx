@@ -170,25 +170,14 @@ const parseCSV = (file) => new Promise((res, rej) =>
   })
 );
 
-async function parseDocx(file) {
+async function parseDocxText(file) {
   const buf = await file.arrayBuffer();
   const { value } = await mammoth.extractRawText({ arrayBuffer: buf });
-  const rows = (value||"").split("\n").map((l) => l.split(/\t| {2,}/).map((s) => s.trim()));
-  const crew = parseBlockSheet(rows);
-  return crew.name ? [crew] : [];
+  return value || "";
 }
 
-// ─── AI parser (PDF + images) via Claude API ─────────────────────────────────
+// ─── AI parser (PDF, DOCX) ─────────────────────────────────
 const IMAGE_TYPES = { jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", webp:"image/webp", gif:"image/gif" };
-
-async function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(",")[1]);
-    r.onerror = () => rej(new Error("Failed to read file"));
-    r.readAsDataURL(file);
-  });
-}
 
 import * as pdfjsLib from "pdfjs-dist";
 // Menggunakan worker dari node_modules agar stabil di Vite/Vercel
@@ -212,19 +201,24 @@ async function parseViaAI(file) {
   const ext = file.name.split(".").pop().toLowerCase();
   const isImage = ext in IMAGE_TYPES;
   const isPDF   = ext === "pdf";
-  if (!isImage && !isPDF) throw new Error(`Unsupported type: .${ext}`);
+  const isDocx  = ext === "docx";
+  if (!isImage && !isPDF && !isDocx) throw new Error(`Unsupported type: .${ext}`);
 
   if (isImage) {
       throw new Error("DeepSeek saat ini tidak mendukung pembacaan gambar. Harap unggah PDF, Excel, Word, atau CSV.");
   }
 
-  // Jika PDF, kita ekstrak teksnya dulu pakai pdf.js
-  let pdfText = "";
+  // Jika PDF atau Docx, kita ekstrak teksnya dulu
+  let docText = "";
   try {
-    pdfText = await extractTextFromPDF(file);
-    if (!pdfText.trim()) throw new Error("Teks kosong (PDF ini mungkin hanya berisi gambar/scan).");
+    if (isPDF) {
+      docText = await extractTextFromPDF(file);
+    } else if (isDocx) {
+      docText = await parseDocxText(file);
+    }
+    if (!docText.trim()) throw new Error("Teks kosong (dokumen ini mungkin hanya berisi gambar).");
   } catch(e) {
-    throw new Error(`Ekstrak PDF Gagal: ${e.message}`);
+    throw new Error(`Ekstrak dokumen gagal: ${e.message}`);
   }
 
   const p1 = "sk-f5415d4f719";
@@ -239,12 +233,12 @@ async function parseViaAI(file) {
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "deepseek-chat", // DeepSeek V3 (paling pas & murah)
+      model: "deepseek-chat",
       messages: [
         { role: "system", content: "You are a precise data extraction API." },
-        { role: "user", content: `${EXTRACTION_PROMPT}\n\nHere is the raw text extracted from the CV:\n\n${pdfText}` }
+        { role: "user", content: `${EXTRACTION_PROMPT}\n\nHere is the raw text extracted from the CV:\n\n${docText}` }
       ],
-      response_format: { type: "json_object" }, // Memaksa DeepSeek membalas dengan JSON valid
+      response_format: { type: "json_object" },
       temperature: 0.1,
     }),
   });
@@ -263,8 +257,8 @@ async function handleFile(file) {
   const ext = file.name.split(".").pop().toLowerCase();
   if (["xlsx","xls"].includes(ext)) return parseExcel(file);
   if (ext === "csv")               return parseCSV(file);
-  if (ext === "docx")              return parseDocx(file);
-  if (ext === "pdf" || ext in IMAGE_TYPES) return parseViaAI(file);
+  // docx dan pdf kita arahkan ke AI Parser
+  if (ext === "pdf" || ext === "docx" || ext in IMAGE_TYPES) return parseViaAI(file);
   throw new Error(`Format .${ext} not supported`);
 }
 
