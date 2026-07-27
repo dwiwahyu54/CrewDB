@@ -712,6 +712,32 @@ export default function App() {
   const deleteCrew = (id)=>{setCrews((p)=>p.filter((c)=>c.id!==id));setSelectedId(null);};
   const isMobile   = !!selected;
 
+  const handleImport = (newCrews) => {
+    setCrews((prev) => {
+      let next = [...prev];
+      newCrews.forEach((nc) => {
+        // Cari apakah kru ini sudah ada di database (berdasarkan Buku Pelaut, Paspor, atau Nama+TglLahir)
+        const existingIdx = next.findIndex((c) => {
+          const matchSeaman = nc.seaman_no && c.seaman_no && nc.seaman_no === c.seaman_no;
+          const matchPassport = nc.passport_no && c.passport_no && nc.passport_no === c.passport_no;
+          const matchNameDob = nc.name && c.name && nc.dob && c.dob && 
+                               nc.name.toLowerCase() === c.name.toLowerCase() && 
+                               nc.dob === c.dob;
+          return matchSeaman || matchPassport || matchNameDob;
+        });
+
+        if (existingIdx >= 0) {
+          // Jika sudah ada, UPDATE/TIMPA data lama dengan yang baru, tapi pertahankan 'id' React-nya
+          next[existingIdx] = { ...nc, id: next[existingIdx].id };
+        } else {
+          // Jika belum ada, INSERT sebagai kru baru di urutan teratas
+          next.unshift(nc);
+        }
+      });
+      return next;
+    });
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
 
@@ -793,7 +819,7 @@ export default function App() {
         }
       </div>
 
-      {showUpload&&<UploadModal onClose={()=>setShowUpload(false)} onImported={(n)=>setCrews((p)=>[...n,...p])}/>}
+      {showUpload&&<UploadModal onClose={()=>setShowUpload(false)} onImported={handleImport}/>}
     </div>
   );
 }
