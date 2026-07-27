@@ -15,7 +15,9 @@ const COP_FIXED = [
   "BOCT", "BLGT", "AOT", "ACT", "ALGT",
   "RADAR SIMULATOR", "ARPA SIMULATOR", "ECDIS", "GOC-ORU", 
   "BRM", "ERM", "IMDG CODE", 
-  "CCM", "CMT", "H2S"
+  "CCM", "CMT", "H2S",
+  "FOOD HANDLING", "SHIP COOK",
+  "DP BASIC", "DP ADVANCE", "DPO", "BOSIET", "HUET"
 ];
 
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
@@ -42,6 +44,13 @@ IMPORTANT INSTRUCTIONS:
 - "Crowd Management" -> "CCM"
 - "Crisis Management" -> "CMT"
 - "Hydrogen Sulphide" -> "H2S"
+- "Food Handling" or "Penjamah Makanan" -> "FOOD HANDLING"
+- "Ship Cook Certificate" or "Koki Kapal" -> "SHIP COOK"
+- "Dynamic Positioning Basic" or "DP Induction" -> "DP BASIC"
+- "Dynamic Positioning Advance" or "DP Simulator" -> "DP ADVANCE"
+- "Dynamic Positioning Operator" -> "DPO"
+- "Basic Offshore Safety Induction" -> "BOSIET"
+- "Helicopter Underwater Escape" -> "HUET"
 2. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
 
 {
@@ -79,7 +88,14 @@ IMPORTANT INSTRUCTIONS:
     {"name": "IMDG CODE", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "CCM", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "CMT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "H2S", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
+    {"name": "H2S", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "FOOD HANDLING", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SHIP COOK", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "DP BASIC", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "DP ADVANCE", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "DPO", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BOSIET", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "HUET", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
   ],
   "experience": [
     {"vessel": "", "rank": "", "vessel_type": "", "gt": "", "company": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
