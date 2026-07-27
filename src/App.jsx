@@ -499,7 +499,14 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
 
         <Block title="COP">
           <TH col1="COP"/>
-          {crew.cop.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
+          {crew.cop
+            // Filter: hanya tampilkan jika ada 'issued' atau 'expired', ATAU sertifikat custom di luar daftar
+            .filter((r) => r.issued || r.expired || !COP_FIXED.includes(r.name))
+            .map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)
+          }
+          {crew.cop.filter((r) => r.issued || r.expired || !COP_FIXED.includes(r.name)).length === 0 && (
+            <div className="px-3 py-2 text-xs text-slate-600">—</div>
+          )}
         </Block>
 
         <Block title="Sea Experience">
