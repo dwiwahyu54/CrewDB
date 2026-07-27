@@ -4,7 +4,7 @@ import Papa from "papaparse";
 import mammoth from "mammoth";
 import {
   Upload, Search, X, Anchor, User,
-  ChevronDown, ChevronUp, AlertTriangle, Trash2, ArrowLeft, FileImage,
+  ChevronDown, ChevronUp, AlertTriangle, Trash2, ArrowLeft, FileImage, Download
 } from "lucide-react";
 
 // ─── constants ───────────────────────────────────────────────────────────────
@@ -278,6 +278,14 @@ async function parseViaAI(file) {
   const clean = text.replace(/```json|```/g, "").trim();
   const json = JSON.parse(clean);
   const crew = jsonToCrew(json);
+  
+  // Simpan file asli ke state agar bisa di-download nanti
+  if (crew && isPDF) {
+    crew.raw_file_base64 = base64;
+    crew.raw_file_name = file.name;
+    crew.raw_file_type = mimeType;
+  }
+  
   return crew.name ? [crew] : [];
 }
 
@@ -380,7 +388,22 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
 
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
-          {info("Date of Birth", fmtDate(crew.dob))}
+          
+          <div className="flex items-start gap-3 py-1.5 text-sm">
+            <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">Date of Birth</span>
+            <div className="flex items-center gap-2 text-slate-200">
+              <span>{fmtDate(crew.dob)}</span>
+              {crew.raw_file_base64 && (
+                <a 
+                  href={`data:${crew.raw_file_type || 'application/pdf'};base64,${crew.raw_file_base64}`} 
+                  download={crew.raw_file_name || `${crew.name} - CV.pdf`}
+                  className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-400 hover:bg-blue-500/20 ml-2"
+                >
+                  <Download size={12} /> CV Asli
+                </a>
+              )}
+            </div>
+          </div>
           
           <div className="flex items-start gap-3 py-1.5 text-sm">
             <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">Phone / WA</span>
