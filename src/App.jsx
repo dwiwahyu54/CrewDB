@@ -288,10 +288,21 @@ async function parseViaAI(file) {
   const crew = jsonToCrew(json);
   
   // Simpan file asli ke state agar bisa di-download nanti
-  if (crew && isPDF) {
-    crew.raw_file_base64 = base64;
+  if (crew) {
+    let fileBase64 = base64;
+    // Jika docx, kita perlu mengubahnya ke base64 di sini karena belum dilakukan di atas
+    if (isDocx && !base64) {
+      fileBase64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Failed to read docx file"));
+        r.readAsDataURL(file);
+      });
+    }
+
+    crew.raw_file_base64 = fileBase64;
     crew.raw_file_name = file.name;
-    crew.raw_file_type = "application/pdf";
+    crew.raw_file_type = isPDF ? "application/pdf" : (isDocx ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document" : IMAGE_TYPES[ext]);
   }
   
   return crew.name ? [crew] : [];
@@ -403,11 +414,11 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
               <span>{fmtDate(crew.dob)}</span>
               {crew.raw_file_base64 && (
                 <a 
-                  href={`data:${crew.raw_file_type || 'application/pdf'};base64,${crew.raw_file_base64}`} 
-                  download={crew.raw_file_name || `${crew.name} - CV.pdf`}
+                  href={`data:${crew.raw_file_type || 'application/octet-stream'};base64,${crew.raw_file_base64}`} 
+                  download={crew.raw_file_name || `${crew.name} - Dokumen.file`}
                   className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-400 hover:bg-blue-500/20 ml-2"
                 >
-                  <Download size={12} /> CV Asli
+                  <Download size={12} /> Doc Asli
                 </a>
               )}
             </div>
