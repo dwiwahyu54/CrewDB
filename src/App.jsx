@@ -346,6 +346,16 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
       <span className="text-slate-200">{value||"—"}</span>
     </div>
   );
+
+  // Helper WA: bersihkan nomor (hapus karakter non-angka), ganti 0 di depan jadi 62
+  const getWALink = (phone) => {
+    if (!phone) return null;
+    let clean = phone.replace(/\D/g, "");
+    if (clean.startsWith("0")) clean = "62" + clean.substring(1);
+    if (!clean) return null;
+    return `https://wa.me/${clean}`;
+  };
+  const waLink = getWALink(crew.phone);
   return (
     <div className="flex h-full flex-col bg-slate-950">
       <div className="flex shrink-0 items-center gap-3 border-b border-white/10 px-4 py-3">
@@ -369,7 +379,20 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
           {info("Date of Birth", fmtDate(crew.dob))}
-          {info("Phone / WA",    crew.phone)}
+          
+          <div className="flex items-start gap-3 py-1.5 text-sm">
+            <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">Phone / WA</span>
+            <div className="flex items-center gap-2 text-slate-200">
+              <span>{crew.phone || "—"}</span>
+              {waLink && (
+                <a href={waLink} target="_blank" rel="noreferrer" className="flex items-center gap-1 rounded bg-teal-500/10 px-2 py-0.5 text-[10px] font-medium text-teal-400 hover:bg-teal-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  Chat WA
+                </a>
+              )}
+            </div>
+          </div>
+
           {info("Address",       crew.address)}
         </div>
 
