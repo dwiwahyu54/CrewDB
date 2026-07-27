@@ -16,7 +16,16 @@ const COP_FIXED = [
 ];
 
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
-Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation):
+Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation).
+IMPORTANT for COP: You must map full certificate names to these exact standard acronyms before putting them in the JSON:
+- "Basic Safety Training" -> "BST"
+- "Survival Craft & Rescue Boat" -> "SCRB"
+- "Advance Fire Fighting" -> "AFF"
+- "Medical First Aid" -> "MFA"
+- "Medical Care" -> "MC"
+- "Ship Security Officer" -> "SSO"
+- "GOC/ORU" -> "GOC-ORU"
+
 {
   "name": "",
   "dob": "YYYY-MM-DD or empty string",
