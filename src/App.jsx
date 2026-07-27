@@ -38,23 +38,23 @@ IMPORTANT for COP: You must map full certificate names to these exact standard a
   "coc": [{"name": "e.g. ANT I", "expired": "YYYY-MM-DD"}],
   "coe": [{"name": "e.g. ANT I", "expired": "YYYY-MM-DD"}],
   "cop": [
-    {"name": "BST", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "SCRB", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "AFF", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "MFA", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "MC", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "BLGT", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "AOT", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "ACT", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "BOCT", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "RADAR SIMULATOR", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "ARPA SIMULATOR", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "GOC-ORU", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "BRM", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "IMDG CODE", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "SSO", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "GMDSS", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "ECDIS", "expired": "YYYY-MM-DD or empty string"}
+    {"name": "BST", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SCRB", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "AFF", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "MFA", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "MC", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BLGT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "AOT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ACT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BOCT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "RADAR SIMULATOR", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ARPA SIMULATOR", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "GOC-ORU", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BRM", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "IMDG CODE", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SSO", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "GMDSS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ECDIS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
   ],
   "experience": [
     {"vessel": "", "rank": "", "vessel_type": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
@@ -117,11 +117,11 @@ function jsonToCrew(json) {
   const copData = json.cop || [];
   crew.cop = COP_FIXED.map((n) => {
     const found = copData.find((c) => c.name?.toUpperCase() === n);
-    return { id: uid(), name: n, expired: found?.expired || "" };
+    return { id: uid(), name: n, issued: found?.issued || "", expired: found?.expired || "" };
   });
   copData.forEach((c) => {
     if (c.name && !COP_FIXED.includes(c.name.toUpperCase()))
-      crew.cop.push({ id: uid(), name: c.name, expired: c.expired || "" });
+      crew.cop.push({ id: uid(), name: c.name, issued: c.issued || "", expired: c.expired || "" });
   });
   crew.experience = (json.experience || []).map((e) => ({
     id: uid(), vessel: e.vessel || "", rank: e.rank || "",
@@ -300,17 +300,18 @@ function Avatar({ name }) {
 
 function TH({ col1 }) {
   return (
-    <div className="grid grid-cols-3 border-b border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-slate-500">
-      <span>{col1}</span><span>Expired</span><span>Remark</span>
+    <div className="grid grid-cols-4 border-b border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-slate-500">
+      <span>{col1}</span><span>Issued</span><span>Expired</span><span>Remark</span>
     </div>
   );
 }
 
-function TR({ value, expired }) {
+function TR({ value, issued, expired }) {
   const st = certStatus(expired);
   return (
-    <div className="grid grid-cols-3 border-b border-white/5 px-3 py-2.5 text-xs last:border-b-0">
+    <div className="grid grid-cols-4 border-b border-white/5 px-3 py-2.5 text-xs last:border-b-0">
       <span className="text-slate-200">{value||"—"}</span>
+      <span className="text-slate-400">{fmtDate(issued)}</span>
       <span className="text-slate-400">{fmtDate(expired)}</span>
       <span>
         {st
@@ -392,7 +393,7 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
 
         <Block title="COP">
           <TH col1="COP"/>
-          {crew.cop.map((r)=><TR key={r.id} value={r.name} expired={r.expired}/>)}
+          {crew.cop.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
         </Block>
 
         <Block title="Sea Experience">
