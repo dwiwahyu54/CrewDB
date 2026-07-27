@@ -590,6 +590,9 @@ export default function App() {
   const [query,        setQuery]        = useState("");
   const [filterRank,   setFilterRank]   = useState("");
   const [filterVessel, setFilterVessel] = useState("");
+  const [filterCoc,    setFilterCoc]    = useState("");
+  const [filterAge,    setFilterAge]    = useState("");
+  const [filterDom,    setFilterDom]    = useState("");
   const [selectedId,   setSelectedId]   = useState(null);
   const [showUpload,   setShowUpload]   = useState(false);
 
@@ -607,13 +610,42 @@ export default function App() {
     return [...s].sort();
   },[crews]);
 
+  const cocOptions = useMemo(()=>{
+    const s = new Set();
+    crews.forEach((c)=>{
+      c.coc.forEach((x)=>x.name&&s.add(x.name));
+    });
+    return [...s].sort();
+  },[crews]);
+
+  const domisiliOptions = useMemo(()=>{
+    const s = new Set();
+    crews.forEach((c)=>{
+      if(c.address) {
+        // Ambil kota/provinsi utama (kata pertama sebelum koma atau seluruh string jika pendek)
+        const city = c.address.split(',')[0].trim();
+        if(city.length > 2) s.add(city);
+      }
+    });
+    return [...s].sort();
+  },[crews]);
+
+  // Helper untuk hitung umur
+  const getAge = (dobString) => {
+    if(!dobString) return 999;
+    const birth = new Date(dobString);
+    if(isNaN(birth)) return 999;
+    const diffMs = Date.now() - birth.getTime();
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25));
+  };
+
   const filtered = useMemo(()=>{
     const q = query.trim().toLowerCase();
     return crews.filter((c)=>{
       if (q) {
         const hay=[c.name,c.phone,c.passport_no,c.seaman_no,
           ...c.coc.map((x)=>x.name),...c.coe.map((x)=>x.name),
-          ...c.experience.map((x)=>`${x.vessel} ${x.rank}`)
+          ...c.experience.map((x)=>`${x.vessel} ${x.rank} ${x.company}`)
         ].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
@@ -622,9 +654,17 @@ export default function App() {
         if (!has) return false;
       }
       if (filterVessel&&!c.experience.some((e)=>e.vessel_type===filterVessel)) return false;
+      if (filterCoc&&!c.coc.some((x)=>x.name===filterCoc)) return false;
+      if (filterAge) {
+        const age = getAge(c.dob);
+        if (age > parseInt(filterAge, 10)) return false;
+      }
+      if (filterDom) {
+        if (!c.address || !c.address.toLowerCase().includes(filterDom.toLowerCase())) return false;
+      }
       return true;
     });
-  },[crews,query,filterRank,filterVessel]);
+  },[crews,query,filterRank,filterVessel,filterCoc,filterAge,filterDom]);
 
   const selected   = crews.find((c)=>c.id===selectedId);
   const deleteCrew = (id)=>{setCrews((p)=>p.filter((c)=>c.id!==id));setSelectedId(null);};
@@ -653,24 +693,47 @@ export default function App() {
               <Upload size={13}/> Upload
             </button>
           </div>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 grid grid-cols-2 gap-2">
             <select value={filterRank} onChange={(e)=>setFilterRank(e.target.value)}
-              className="flex-1 rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-xs text-slate-300 outline-none focus:border-teal-500/50">
-              <option value="">All ranks</option>
+              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              <option value="">All Ranks</option>
               {rankOptions.map((r)=><option key={r} value={r}>{r}</option>)}
             </select>
             <select value={filterVessel} onChange={(e)=>setFilterVessel(e.target.value)}
-              className="flex-1 rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-xs text-slate-300 outline-none focus:border-teal-500/50">
-              <option value="">All vessel types</option>
+              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              <option value="">All Vessels</option>
               {vesselOptions.map((v)=><option key={v} value={v}>{v}</option>)}
             </select>
-            {(filterRank||filterVessel)&&(
-              <button onClick={()=>{setFilterRank("");setFilterVessel("");}}
-                className="shrink-0 rounded-lg border border-white/10 bg-slate-800 px-2 text-slate-400 hover:text-slate-200">
-                <X size={13}/>
-              </button>
-            )}
+            <select value={filterCoc} onChange={(e)=>setFilterCoc(e.target.value)}
+              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              <option value="">All COC (Ijazah)</option>
+              {cocOptions.map((v)=><option key={v} value={v}>{v}</option>)}
+            </select>
+            <select value={filterDom} onChange={(e)=>setFilterDom(e.target.value)}
+              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              <option value="">All Domisili</option>
+              {domisiliOptions.map((v)=><option key={v} value={v}>{v}</option>)}
+            </select>
+            <select value={filterAge} onChange={(e)=>setFilterAge(e.target.value)}
+              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50 col-span-2">
+              <option value="">All Ages (Umur)</option>
+              <option value="25">Max 25 years old</option>
+              <option value="30">Max 30 years old</option>
+              <option value="35">Max 35 years old</option>
+              <option value="40">Max 40 years old</option>
+              <option value="45">Max 45 years old</option>
+              <option value="50">Max 50 years old</option>
+              <option value="55">Max 55 years old</option>
+            </select>
           </div>
+          {(filterRank||filterVessel||filterCoc||filterAge||filterDom)&&(
+            <div className="mt-2">
+              <button onClick={()=>{setFilterRank("");setFilterVessel("");setFilterCoc("");setFilterAge("");setFilterDom("");}}
+                className="w-full rounded-lg border border-white/10 bg-white/5 py-1 text-[10px] text-slate-400 hover:text-slate-200">
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.length===0
