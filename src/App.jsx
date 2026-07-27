@@ -291,7 +291,7 @@ async function parseViaAI(file) {
   if (crew && isPDF) {
     crew.raw_file_base64 = base64;
     crew.raw_file_name = file.name;
-    crew.raw_file_type = mimeType;
+    crew.raw_file_type = "application/pdf";
   }
   
   return crew.name ? [crew] : [];
