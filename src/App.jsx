@@ -17,7 +17,8 @@ const COP_FIXED = [
 
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
 Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation).
-IMPORTANT for COP: You must map full certificate names to these exact standard acronyms before putting them in the JSON:
+IMPORTANT INSTRUCTIONS:
+1. For COP: You must map full certificate names to these exact standard acronyms before putting them in the JSON:
 - "Basic Safety Training" -> "BST"
 - "Survival Craft & Rescue Boat" -> "SCRB"
 - "Advance Fire Fighting" -> "AFF"
@@ -25,6 +26,7 @@ IMPORTANT for COP: You must map full certificate names to these exact standard a
 - "Medical Care" -> "MC"
 - "Ship Security Officer" -> "SSO"
 - "GOC/ORU" -> "GOC-ORU"
+2. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
 
 {
   "name": "",
