@@ -197,22 +197,36 @@ async function parseViaAI(file) {
   if (!isImage && !isPDF) throw new Error(`Unsupported type: .${ext}`);
 
   const base64 = await fileToBase64(file);
-  const contentPart = isPDF
-    ? { type:"document", source:{ type:"base64", media_type:"application/pdf", data:base64 }}
-    : { type:"image",    source:{ type:"base64", media_type:IMAGE_TYPES[ext],  data:base64 }};
+  const mimeType = isPDF ? "application/pdf" : IMAGE_TYPES[ext];
+  const dataUrl = `data:${mimeType};base64,${base64}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  // Mengambil API Key dari .env atau fallback ke string (JANGAN komit API key asli ke repo umum)
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "TARUH_API_KEY_OPENROUTER_DI_SINI";
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+      "HTTP-Referer": window.location.origin,
+      "X-Title": "CrewDB"
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      messages: [{ role:"user", content:[contentPart, { type:"text", text:EXTRACTION_PROMPT }] }],
+      model: "google/gemini-2.0-flash-exp:free",
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: EXTRACTION_PROMPT },
+          { type: "image_url", image_url: { url: dataUrl } }
+        ]
+      }]
     }),
   });
 
   const data = await res.json();
-  const text = data.content.map((b) => b.text || "").join("");
+  if (data.error) throw new Error(data.error.message || "API Error");
+
+  const text = data.choices[0].message.content;
   const clean = text.replace(/```json|```/g, "").trim();
   const json = JSON.parse(clean);
   const crew = jsonToCrew(json);
