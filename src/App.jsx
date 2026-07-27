@@ -9,7 +9,11 @@ import {
 
 // ─── constants ───────────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2, 10);
-const COP_FIXED = ["BST", "SCRB", "AFF", "MFA"];
+const COP_FIXED = [
+  "BST", "SCRB", "AFF", "MFA", "MC", "BLGT", "AOT", "ACT", "BOCT",
+  "RADAR SIMULATOR", "ARPA SIMULATOR", "GOC-ORU", "BRM", "IMDG CODE",
+  "SSO", "GMDSS", "ECDIS"
+];
 
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
 Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation):
@@ -28,7 +32,20 @@ Return ONLY a valid JSON object with exactly this structure (no markdown, no exp
     {"name": "BST", "expired": "YYYY-MM-DD or empty string"},
     {"name": "SCRB", "expired": "YYYY-MM-DD or empty string"},
     {"name": "AFF", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "MFA", "expired": "YYYY-MM-DD or empty string"}
+    {"name": "MFA", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "MC", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BLGT", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "AOT", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ACT", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BOCT", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "RADAR SIMULATOR", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ARPA SIMULATOR", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "GOC-ORU", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BRM", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "IMDG CODE", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SSO", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "GMDSS", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ECDIS", "expired": "YYYY-MM-DD or empty string"}
   ],
   "experience": [
     {"vessel": "", "rank": "", "vessel_type": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
