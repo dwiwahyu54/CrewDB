@@ -57,7 +57,7 @@ IMPORTANT for COP: You must map full certificate names to these exact standard a
     {"name": "ECDIS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
   ],
   "experience": [
-    {"vessel": "", "rank": "", "vessel_type": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
+    {"vessel": "", "rank": "", "vessel_type": "", "gt": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
   ]
 }`;
 
@@ -125,7 +125,7 @@ function jsonToCrew(json) {
   });
   crew.experience = (json.experience || []).map((e) => ({
     id: uid(), vessel: e.vessel || "", rank: e.rank || "",
-    vessel_type: e.vessel_type || "", sign_on: e.sign_on || "", sign_off: e.sign_off || "",
+    vessel_type: e.vessel_type || "", gt: e.gt || "", sign_on: e.sign_on || "", sign_off: e.sign_off || "",
   }));
   return crew;
 }
@@ -421,22 +421,23 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
 
         <Block title="Sea Experience">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs" style={{minWidth:440}}>
+            <table className="w-full border-collapse text-xs" style={{minWidth:500}}>
               <thead>
                 <tr className="bg-white/5">
-                  {["Vessel","Rank","Type","Sign On","Sign Off"].map((h)=>(
+                  {["Vessel","Rank","Type","GRT/GT","Sign On","Sign Off"].map((h)=>(
                     <th key={h} className="border-b border-white/10 px-3 py-1.5 text-left text-[9px] font-semibold uppercase tracking-widest text-slate-500 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {crew.experience.length === 0
-                  ? <tr><td colSpan={5} className="px-3 py-3 text-center text-slate-600">—</td></tr>
+                  ? <tr><td colSpan={6} className="px-3 py-3 text-center text-slate-600">—</td></tr>
                   : crew.experience.map((r)=>(
                       <tr key={r.id} className="border-t border-white/5">
                         <td className="px-3 py-2 text-slate-200 whitespace-nowrap">{r.vessel||"—"}</td>
                         <td className="px-3 py-2 text-teal-400 font-medium whitespace-nowrap">{r.rank||"—"}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.vessel_type||"—"}</td>
+                        <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.gt||"—"}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_on)}</td>
                         <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_off)}</td>
                       </tr>
