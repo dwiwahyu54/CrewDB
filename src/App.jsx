@@ -35,8 +35,8 @@ IMPORTANT for COP: You must map full certificate names to these exact standard a
   "passport_exp": "YYYY-MM-DD or empty string",
   "seaman_no": "",
   "seaman_exp": "YYYY-MM-DD or empty string",
-  "coc": [{"name": "e.g. ANT I", "expired": "YYYY-MM-DD"}],
-  "coe": [{"name": "e.g. ANT I", "expired": "YYYY-MM-DD"}],
+  "coc": [{"name": "e.g. ANT I", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}],
+  "coe": [{"name": "e.g. ANT I", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}],
   "cop": [
     {"name": "BST", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "SCRB", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
@@ -112,8 +112,8 @@ function jsonToCrew(json) {
   crew.passport_exp = json.passport_exp || "";
   crew.seaman_no    = json.seaman_no    || "";
   crew.seaman_exp   = json.seaman_exp   || "";
-  crew.coc = (json.coc || []).map((c) => ({ id: uid(), name: c.name || "", expired: c.expired || "" }));
-  crew.coe = (json.coe || []).map((c) => ({ id: uid(), name: c.name || "", expired: c.expired || "" }));
+  crew.coc = (json.coc || []).map((c) => ({ id: uid(), name: c.name || "", issued: c.issued || "", expired: c.expired || "" }));
+  crew.coe = (json.coe || []).map((c) => ({ id: uid(), name: c.name || "", issued: c.issued || "", expired: c.expired || "" }));
   const copData = json.cop || [];
   crew.cop = COP_FIXED.map((n) => {
     const found = copData.find((c) => c.name?.toUpperCase() === n);
@@ -384,11 +384,11 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
           <TH col1="COC"/>
           {crew.coc.length === 0
             ? <div className="px-3 py-2 text-xs text-slate-600">—</div>
-            : crew.coc.map((r)=><TR key={r.id} value={r.name} expired={r.expired}/>)}
+            : crew.coc.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
           <TH col1="COE"/>
           {crew.coe.length === 0
             ? <div className="px-3 py-2 text-xs text-slate-600">—</div>
-            : crew.coe.map((r)=><TR key={r.id} value={r.name} expired={r.expired}/>)}
+            : crew.coe.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
         </Block>
 
         <Block title="COP">
