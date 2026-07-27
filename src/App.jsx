@@ -238,9 +238,17 @@ async function parseViaAI(file) {
 
   // Jika PDF atau Docx, kita ekstrak teksnya dulu
   let docText = "";
+  let base64 = null;
   try {
     if (isPDF) {
       docText = await extractTextFromPDF(file);
+      // Kita juga butuh base64 untuk tombol download CV
+      base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Failed to read file"));
+        r.readAsDataURL(file);
+      });
     } else if (isDocx) {
       docText = await parseDocxText(file);
     }
