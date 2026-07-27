@@ -191,7 +191,9 @@ async function fileToBase64(file) {
 }
 
 import * as pdfjsLib from "pdfjs-dist";
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Menggunakan worker dari node_modules agar stabil di Vite/Vercel
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 async function extractTextFromPDF(file) {
   const arrayBuffer = await file.arrayBuffer();
@@ -220,8 +222,9 @@ async function parseViaAI(file) {
   let pdfText = "";
   try {
     pdfText = await extractTextFromPDF(file);
+    if (!pdfText.trim()) throw new Error("Teks kosong (PDF ini mungkin hanya berisi gambar/scan).");
   } catch(e) {
-    throw new Error("Gagal membaca teks dari PDF. Pastikan ini bukan PDF hasil scan (gambar).");
+    throw new Error(`Ekstrak PDF Gagal: ${e.message}`);
   }
 
   const p1 = "sk-f5415d4f719";
