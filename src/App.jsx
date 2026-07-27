@@ -10,9 +10,12 @@ import {
 // ─── constants ───────────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2, 10);
 const COP_FIXED = [
-  "BST", "SCRB", "AFF", "MFA", "MC", "BLGT", "AOT", "ACT", "BOCT",
-  "RADAR SIMULATOR", "ARPA SIMULATOR", "GOC-ORU", "BRM", "IMDG CODE",
-  "SSO", "GMDSS", "ECDIS"
+  "BST", "SCRB", "FRSB", "AFF", "MFA", "MC",
+  "SAT", "SDSD", "SSO", 
+  "BOCT", "BLGT", "AOT", "ACT", "ALGT",
+  "RADAR SIMULATOR", "ARPA SIMULATOR", "ECDIS", "GOC-ORU", 
+  "BRM", "ERM", "IMDG CODE", 
+  "CCM", "CMT", "H2S"
 ];
 
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
@@ -21,11 +24,24 @@ IMPORTANT INSTRUCTIONS:
 1. For COP: You must map full certificate names to these exact standard acronyms before putting them in the JSON:
 - "Basic Safety Training" -> "BST"
 - "Survival Craft & Rescue Boat" -> "SCRB"
+- "Fast Rescue Boat" -> "FRSB"
 - "Advance Fire Fighting" -> "AFF"
 - "Medical First Aid" -> "MFA"
 - "Medical Care" -> "MC"
+- "Security Awareness Training" -> "SAT"
+- "Designated Security Duties" -> "SDSD"
 - "Ship Security Officer" -> "SSO"
-- "GOC/ORU" -> "GOC-ORU"
+- "Basic Oil and Chemical Tanker" -> "BOCT"
+- "Basic Liquefied Gas Tanker" -> "BLGT"
+- "Advance Oil Tanker" -> "AOT"
+- "Advance Chemical Tanker" -> "ACT"
+- "Advance Liquefied Gas Tanker" -> "ALGT"
+- "GOC/ORU" or "Global Maritime Distress" -> "GOC-ORU"
+- "Bridge Resource Management" -> "BRM"
+- "Engine Room Resource Management" -> "ERM"
+- "Crowd Management" -> "CCM"
+- "Crisis Management" -> "CMT"
+- "Hydrogen Sulphide" -> "H2S"
 2. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
 
 {
@@ -42,21 +58,28 @@ IMPORTANT INSTRUCTIONS:
   "cop": [
     {"name": "BST", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "SCRB", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "FRSB", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "AFF", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "MFA", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "MC", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SAT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SDSD", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "SSO", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "BOCT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "BLGT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "AOT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "ACT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "BOCT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ALGT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "RADAR SIMULATOR", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "ARPA SIMULATOR", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ECDIS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "GOC-ORU", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "BRM", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "ERM", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
     {"name": "IMDG CODE", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "SSO", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "GMDSS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
-    {"name": "ECDIS", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
+    {"name": "CCM", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "CMT", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"},
+    {"name": "H2S", "issued": "YYYY-MM-DD or empty", "expired": "YYYY-MM-DD or empty string"}
   ],
   "experience": [
     {"vessel": "", "rank": "", "vessel_type": "", "gt": "", "company": "", "sign_on": "YYYY-MM-DD", "sign_off": "YYYY-MM-DD"}
