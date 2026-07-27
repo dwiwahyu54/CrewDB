@@ -214,7 +214,7 @@ async function parseViaAI(file) {
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "llama-3.2-11b-vision-preview", // Model vision di Groq
+      model: "llama-3.2-90b-vision-preview", // Model vision terbaru di Groq
       messages: [{
         role: "user",
         content: [
