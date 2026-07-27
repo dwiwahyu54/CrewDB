@@ -198,31 +198,36 @@ async function parseViaAI(file) {
 
   const base64 = await fileToBase64(file);
   const mimeType = isPDF ? "application/pdf" : IMAGE_TYPES[ext];
+  const dataUrl = `data:${mimeType};base64,${base64}`;
 
-  // Mengambil API Key dari .env (Google AI Studio)
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) throw new Error("Gemini API Key is missing. Check your .env or Vercel settings.");
+  // Mengambil API Key dari .env (Groq)
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (!apiKey) throw new Error("Groq API Key is missing. Check your .env or Vercel settings.");
 
-  // Memanggil API Gemini langsung
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+  // Groq API Endpoint (OpenAI Compatible)
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      contents: [{
-        parts: [
-          { text: EXTRACTION_PROMPT },
-          { inline_data: { mime_type: mimeType, data: base64 } }
+      model: "llama-3.2-11b-vision-preview", // Model vision di Groq
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: EXTRACTION_PROMPT },
+          { type: "image_url", image_url: { url: dataUrl } }
         ]
-      }]
+      }],
+      temperature: 0.1, // Agar JSON output lebih stabil
     }),
   });
 
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "Gemini API Error");
+  if (data.error) throw new Error(data.error.message || "Groq API Error");
 
-  const text = data.candidates[0].content.parts[0].text;
+  const text = data.choices[0].message.content;
   const clean = text.replace(/```json|```/g, "").trim();
   const json = JSON.parse(clean);
   const crew = jsonToCrew(json);
