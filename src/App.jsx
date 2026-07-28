@@ -408,14 +408,18 @@ function Block({ title, children }) {
 }
 
 function getLatestExperience(experience = []) {
-  return [...experience].sort((a, b) => {
-    const aOngoing = a.sign_on && !a.sign_off;
-    const bOngoing = b.sign_on && !b.sign_off;
-    if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+  const toTime = (value) => {
+    if (!value) return 0;
+    const time = new Date(value).getTime();
+    return Number.isNaN(time) ? 0 : time;
+  };
 
-    const aDate = new Date(a.sign_off || a.sign_on || 0).getTime() || 0;
-    const bDate = new Date(b.sign_off || b.sign_on || 0).getTime() || 0;
-    return bDate - aDate;
+  return [...experience].sort((a, b) => {
+    // Bandingkan tanggal aktivitas terakhir. Sign-off kosong tidak otomatis
+    // dianggap paling baru karena bisa terjadi akibat data CV tidak lengkap.
+    const aLatestDate = Math.max(toTime(a.sign_off), toTime(a.sign_on));
+    const bLatestDate = Math.max(toTime(b.sign_off), toTime(b.sign_on));
+    return bLatestDate - aLatestDate;
   })[0];
 }
 
