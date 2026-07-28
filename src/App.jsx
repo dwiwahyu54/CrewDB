@@ -668,11 +668,13 @@ function CrewRow({ crew, onSelect, index }) {
     >
       <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400 dark:text-[#62666d]">{String(index+1).padStart(2,"0")}</span>
       <Avatar name={crew.name}/>
-      <div className="min-w-0 flex-1">
-        <p className="break-words text-sm font-bold leading-5 text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
-        <p className="truncate text-xs font-medium text-slate-500 dark:text-[#8a8f98] mt-0.5">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
+      <div className="min-w-0 flex-1 overflow-x-auto">
+        <p className="whitespace-nowrap text-sm font-bold leading-5 text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
+        <p className="mt-0.5 whitespace-nowrap text-xs font-medium text-slate-500 dark:text-[#8a8f98]">
+          {rank || "—"}{crew.phone ? ` · ${crew.phone}` : ""}
+        </p>
+        <p className="mt-0.5 whitespace-nowrap text-xs text-slate-400 dark:text-[#62666d]">{sub}</p>
       </div>
-      <p className="hidden max-w-[180px] shrink-0 truncate text-xs text-slate-400 lg:block">{sub}</p>
       <ChevronDown size={16} className="shrink-0 -rotate-90 text-slate-400 dark:text-[#62666d]"/>
     </button>
   );
@@ -817,7 +819,7 @@ export default function App() {
     <div className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${darkMode ? 'dark bg-[#08090a] text-[#f7f8f8]' : 'bg-slate-50 text-slate-900'}`}>
 
       {/* List */}
-      <div className={`flex flex-col border-r border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0f1011] shadow-sm dark:shadow-none z-10 transition-colors ${isMobile?"hidden md:flex md:w-96":"flex w-full md:w-96"}`}>
+      <div className={`flex flex-col border-r border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0f1011] shadow-sm dark:shadow-none z-10 transition-colors ${isMobile?"hidden md:flex md:w-[32rem]":"flex w-full md:w-[32rem]"}`}>
         <div className="shrink-0 border-b border-slate-200 dark:border-slate-800 px-5 py-4 transition-colors">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 p-1.5 text-blue-600 dark:text-blue-400">
