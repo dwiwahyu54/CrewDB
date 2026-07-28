@@ -347,32 +347,21 @@ async function parseViaAI(file) {
     throw new Error(`Ekstrak dokumen gagal: ${e.message}`);
   }
 
-  const p1 = "sk-f5415d4f719";
-  const p2 = "d4ccface3c062f12c8b0f";
-  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || (p1 + p2);
-  if (!apiKey) throw new Error("DeepSeek API Key is missing.");
-
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
+  // API key hanya berada di Vercel Serverless Function, tidak di browser.
+  const res = await fetch("/api/parse-cv", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "deepseek-chat",
-      messages: [
-        { role: "system", content: "You are a precise data extraction API." },
-        { role: "user", content: `${EXTRACTION_PROMPT}\n\nHere is the raw text extracted from the CV:\n\n${docText}` }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.1,
+      documentText: docText,
+      extractionPrompt: EXTRACTION_PROMPT,
     }),
   });
 
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "DeepSeek API Error");
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error || `Gagal memproses CV (${res.status})`);
 
-  const text = data.choices[0].message.content;
+  const text = data?.content;
+  if (!text) throw new Error("Server tidak mengembalikan hasil ekstraksi.");
   const clean = text.replace(/```json|```/g, "").trim();
   const json = JSON.parse(clean);
   const crew = jsonToCrew(json);
