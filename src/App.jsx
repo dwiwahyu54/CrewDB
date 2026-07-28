@@ -438,7 +438,14 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
           <p className="truncate text-base font-bold text-slate-800 dark:text-slate-100">{crew.name||"—"}</p>
           <p className="truncate text-xs font-medium text-blue-600 dark:text-blue-400">{crew.experience[0]?.rank || crew.coc[0]?.name || "Crew Member"}</p>
         </div>
-        <button onClick={()=>onDelete(crew.id)} className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+        <button
+          onClick={() => {
+            const confirmed = window.confirm(`Anda yakin ingin menghapus data ${crew.name || "crew ini"}?`);
+            if (confirmed) onDelete(crew.id);
+          }}
+          className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          title="Hapus data crew"
+        >
           <Trash2 size={16}/>
         </button>
         {!isMobile && (
