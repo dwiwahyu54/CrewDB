@@ -723,7 +723,7 @@ const SEED = {
   ...emptyCrew(),
   name: "Dwi Wahyu Setia Utama",
   dob: "1993-04-04",
-  phone: "+628****7224",
+  phone: "+6281210307224",
   address: "RT.04 RW 08, Kec. Jepon, Kab. Blora, Central Java",
   passport_no: "C0253072",
   passport_exp: "2023-05-07",
