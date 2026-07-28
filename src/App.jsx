@@ -456,15 +456,15 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
       <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
         <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-4 shadow-sm">
           
-          <div className="flex items-start gap-3 py-2 text-sm">
-            <span className="w-32 shrink-0 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Date of Birth</span>
-            <div className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium">
-              <span>{fmtDate(crew.dob)}</span>
+          <div className="grid grid-cols-[7rem_minmax(0,1fr)] items-start gap-3 py-2 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+            <span className="pt-0.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Date of Birth</span>
+            <div className="min-w-0 text-slate-800 dark:text-slate-200 font-medium">
+              <span className="block whitespace-nowrap">{fmtDate(crew.dob)}</span>
               {crew.raw_file_base64 && (
                 <a 
                   href={`data:${crew.raw_file_type || 'application/octet-stream'};base64,${crew.raw_file_base64}`} 
                   download={crew.raw_file_name || `${crew.name} - Dokumen.file`}
-                  className="flex items-center gap-1.5 rounded-md bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                  className="mt-2 flex w-fit items-center gap-1.5 rounded-md bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
                 >
                   <Download size={13} /> Document
                 </a>
