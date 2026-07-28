@@ -761,16 +761,16 @@ function CrewRow({ crew, onSelect, index }) {
   return (
     <button
       onClick={()=>onSelect(crew.id)}
-      className="flex w-full items-center gap-4 border-b border-slate-100 dark:border-white/[0.05] px-5 py-4 text-left transition-colors active:bg-slate-100 dark:active:bg-white/[0.06] hover:bg-slate-50 dark:hover:bg-white/[0.035]"
+      className="flex w-full items-center gap-3 border-b border-slate-100 dark:border-white/[0.05] px-4 py-2.5 text-left transition-colors active:bg-slate-100 dark:active:bg-white/[0.06] hover:bg-slate-50 dark:hover:bg-white/[0.035]"
     >
-      <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400 dark:text-[#62666d]">{String(index+1).padStart(2,"0")}</span>
+      <span className="w-5 shrink-0 font-mono text-[10px] font-semibold text-slate-400 dark:text-[#62666d]">{String(index+1).padStart(2,"0")}</span>
       <Avatar name={crew.name}/>
       <div className="min-w-0 flex-1 overflow-x-auto">
-        <p className="whitespace-nowrap text-sm font-bold leading-5 text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
-        <p className="mt-0.5 whitespace-nowrap text-xs font-medium text-slate-500 dark:text-[#8a8f98]">
+        <p className="whitespace-nowrap text-sm font-bold leading-4 text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
+        <p className="mt-0.5 whitespace-nowrap text-[11px] font-medium leading-4 text-slate-500 dark:text-[#8a8f98]">
           {rank || "—"}{crew.phone ? ` · ${crew.phone}` : ""}
         </p>
-        <p className="mt-0.5 whitespace-nowrap text-xs text-slate-400 dark:text-[#62666d]">{sub}</p>
+        <p className="whitespace-nowrap text-[11px] leading-4 text-slate-400 dark:text-[#62666d]">{sub}</p>
       </div>
       <ChevronDown size={16} className="shrink-0 -rotate-90 text-slate-400 dark:text-[#62666d]"/>
     </button>
