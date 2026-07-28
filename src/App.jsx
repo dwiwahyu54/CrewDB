@@ -117,8 +117,8 @@ function certStatus(d) {
   const date = new Date(d);
   if (isNaN(date)) return null;
   return date < new Date()
-    ? { label: "Expired", cls: "bg-red-500/20 text-red-300" }
-    : { label: "Active",  cls: "bg-teal-500/20 text-teal-300" };
+    ? { label: "Expired", cls: "bg-red-50 text-red-600 border border-red-200" }
+    : { label: "Active",  cls: "bg-green-50 text-green-600 border border-green-200" };
 }
 
 function fmtDate(d) {
@@ -360,7 +360,7 @@ async function handleFile(file) {
 function Avatar({ name }) {
   const ini = (name||"?").split(" ").map((s)=>s[0]).filter(Boolean).slice(0,2).join("").toUpperCase();
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-600 to-slate-700 text-xs font-bold text-white ring-1 ring-white/10">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-teal-500 text-xs font-bold text-white shadow-sm ring-2 ring-white">
       {ini || <User size={14} />}
     </div>
   );
@@ -368,7 +368,7 @@ function Avatar({ name }) {
 
 function TH({ col1 }) {
   return (
-    <div className="grid grid-cols-4 border-b border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-slate-500">
+    <div className="grid grid-cols-4 border-b border-slate-200 bg-slate-50/80 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
       <span>{col1}</span><span>Issued</span><span>Expired</span><span>Remark</span>
     </div>
   );
@@ -377,14 +377,14 @@ function TH({ col1 }) {
 function TR({ value, issued, expired }) {
   const st = certStatus(expired);
   return (
-    <div className="grid grid-cols-4 border-b border-white/5 px-3 py-2.5 text-xs last:border-b-0">
-      <span className="text-slate-200">{value||"—"}</span>
-      <span className="text-slate-400">{fmtDate(issued)}</span>
-      <span className="text-slate-400">{fmtDate(expired)}</span>
+    <div className="grid grid-cols-4 border-b border-slate-100 px-3 py-2.5 text-xs last:border-b-0 hover:bg-slate-50/50 transition-colors">
+      <span className="font-medium text-slate-700">{value||"—"}</span>
+      <span className="text-slate-500">{fmtDate(issued)}</span>
+      <span className="text-slate-500">{fmtDate(expired)}</span>
       <span>
         {st
-          ? <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${st.cls}`}>{st.label}</span>
-          : <span className="text-slate-600">—</span>}
+          ? <span className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide ${st.cls}`}>{st.label}</span>
+          : <span className="text-slate-400">—</span>}
       </span>
     </div>
   );
@@ -393,15 +393,15 @@ function TR({ value, issued, expired }) {
 function Block({ title, children }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="overflow-hidden rounded-lg border border-white/10">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all">
       <button
         onClick={() => setOpen((v)=>!v)}
-        className="flex w-full items-center justify-between bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-300"
+        className="flex w-full items-center justify-between bg-white px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 active:bg-slate-100"
       >
         {title}
-        {open ? <ChevronUp size={13} className="text-slate-500"/> : <ChevronDown size={13} className="text-slate-500"/>}
+        {open ? <ChevronUp size={14} className="text-slate-400"/> : <ChevronDown size={14} className="text-slate-400"/>}
       </button>
-      {open && <div>{children}</div>}
+      {open && <div className="border-t border-slate-100">{children}</div>}
     </div>
   );
 }
@@ -409,13 +409,13 @@ function Block({ title, children }) {
 function DetailPanel({ crew, onClose, onDelete, isMobile }) {
   if (!crew) return null;
   const info = (label, value) => (
-    <div className="flex items-start gap-3 py-1.5 text-sm">
-      <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">{label}</span>
-      <span className="text-slate-200">{value||"—"}</span>
+    <div className="flex items-start gap-3 py-2 text-sm">
+      <span className="w-32 shrink-0 text-[11px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+      <span className="font-medium text-slate-800">{value||"—"}</span>
     </div>
   );
 
-  // Helper WA: bersihkan nomor (hapus karakter non-angka), ganti 0 di depan jadi 62
+  // Helper WA
   const getWALink = (phone) => {
     if (!phone) return null;
     let clean = phone.replace(/\D/g, "");
@@ -425,51 +425,54 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
   };
   const waLink = getWALink(crew.phone);
   return (
-    <div className="flex h-full flex-col bg-slate-950">
-      <div className="flex shrink-0 items-center gap-3 border-b border-white/10 px-4 py-3">
+    <div className="flex h-full flex-col bg-slate-50/50">
+      <div className="flex shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-5 py-4 shadow-sm z-10">
         {isMobile && (
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-400 active:bg-white/10">
+          <button onClick={onClose} className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
             <ArrowLeft size={18}/>
           </button>
         )}
         <Avatar name={crew.name}/>
-        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-100">{crew.name||"—"}</p>
-        <button onClick={()=>onDelete(crew.id)} className="rounded-md p-1.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400">
-          <Trash2 size={15}/>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-base font-bold text-slate-800">{crew.name||"—"}</p>
+          <p className="truncate text-xs font-medium text-blue-600">{crew.experience[0]?.rank || crew.coc[0]?.name || "Crew Member"}</p>
+        </div>
+        <button onClick={()=>onDelete(crew.id)} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+          <Trash2 size={16}/>
         </button>
         {!isMobile && (
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-500 hover:bg-white/5 hover:text-slate-200">
+          <button onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
             <X size={16}/>
           </button>
         )}
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+      <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           
-          <div className="flex items-start gap-3 py-1.5 text-sm">
-            <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">Date of Birth</span>
-            <div className="flex items-center gap-2 text-slate-200">
+          <div className="flex items-start gap-3 py-2 text-sm">
+            <span className="w-32 shrink-0 text-[11px] font-bold uppercase tracking-widest text-slate-400">Date of Birth</span>
+            <div className="flex items-center gap-3 text-slate-800 font-medium">
               <span>{fmtDate(crew.dob)}</span>
               {crew.raw_file_base64 && (
                 <a 
                   href={`data:${crew.raw_file_type || 'application/octet-stream'};base64,${crew.raw_file_base64}`} 
                   download={crew.raw_file_name || `${crew.name} - Dokumen.file`}
-                  className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-400 hover:bg-blue-500/20 ml-2"
+                  className="flex items-center gap-1.5 rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-600 hover:bg-blue-100 transition-colors"
                 >
-                  <Download size={12} /> Doc Asli
+                  <Download size={13} /> Document
                 </a>
               )}
             </div>
           </div>
           
-          <div className="flex items-start gap-3 py-1.5 text-sm">
-            <span className="w-28 shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-500">Phone / WA</span>
-            <div className="flex items-center gap-2 text-slate-200">
+          <div className="flex items-start gap-3 py-2 text-sm">
+            <span className="w-32 shrink-0 text-[11px] font-bold uppercase tracking-widest text-slate-400">Phone / WA</span>
+            <div className="flex items-center gap-3 text-slate-800 font-medium">
               <span>{crew.phone || "—"}</span>
               {waLink && (
-                <a href={waLink} target="_blank" rel="noreferrer" className="flex items-center gap-1 rounded bg-teal-500/10 px-2 py-0.5 text-[10px] font-medium text-teal-400 hover:bg-teal-500/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                <a href={waLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-md bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-600 hover:bg-green-100 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   Chat WA
                 </a>
               )}
@@ -489,23 +492,22 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
         <Block title="COC / COE">
           <TH col1="COC"/>
           {crew.coc.length === 0
-            ? <div className="px-3 py-2 text-xs text-slate-600">—</div>
+            ? <div className="px-4 py-3 text-xs text-slate-400 font-medium">—</div>
             : crew.coc.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
           <TH col1="COE"/>
           {crew.coe.length === 0
-            ? <div className="px-3 py-2 text-xs text-slate-600">—</div>
+            ? <div className="px-4 py-3 text-xs text-slate-400 font-medium">—</div>
             : crew.coe.map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)}
         </Block>
 
         <Block title="COP">
           <TH col1="COP"/>
           {crew.cop
-            // Filter: hanya tampilkan jika ada 'issued' atau 'expired', ATAU sertifikat custom di luar daftar
             .filter((r) => r.issued || r.expired || !COP_FIXED.includes(r.name))
             .map((r)=><TR key={r.id} value={r.name} issued={r.issued} expired={r.expired}/>)
           }
           {crew.cop.filter((r) => r.issued || r.expired || !COP_FIXED.includes(r.name)).length === 0 && (
-            <div className="px-3 py-2 text-xs text-slate-600">—</div>
+            <div className="px-4 py-3 text-xs text-slate-400 font-medium">—</div>
           )}
         </Block>
 
@@ -513,24 +515,24 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs" style={{minWidth:650}}>
               <thead>
-                <tr className="bg-white/5">
+                <tr className="bg-slate-50/80">
                   {["Vessel","Rank","Type","GRT/GT","Sign On","Sign Off","Company"].map((h)=>(
-                    <th key={h} className="border-b border-white/10 px-3 py-1.5 text-left text-[9px] font-semibold uppercase tracking-widest text-slate-500 whitespace-nowrap">{h}</th>
+                    <th key={h} className="border-b border-slate-200 px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {crew.experience.length === 0
-                  ? <tr><td colSpan={7} className="px-3 py-3 text-center text-slate-600">—</td></tr>
+                  ? <tr><td colSpan={7} className="px-4 py-4 text-center text-slate-400 font-medium">—</td></tr>
                   : crew.experience.map((r)=>(
-                      <tr key={r.id} className="border-t border-white/5">
-                        <td className="px-3 py-2 text-slate-200 whitespace-nowrap">{r.vessel||"—"}</td>
-                        <td className="px-3 py-2 text-teal-400 font-medium whitespace-nowrap">{r.rank||"—"}</td>
-                        <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.vessel_type||"—"}</td>
-                        <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{r.gt||"—"}</td>
-                        <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_on)}</td>
-                        <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{fmtDate(r.sign_off)}</td>
-                        <td className="px-3 py-2 text-slate-300 whitespace-nowrap max-w-[150px] truncate" title={r.company}>{r.company||"—"}</td>
+                      <tr key={r.id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
+                        <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">{r.vessel||"—"}</td>
+                        <td className="px-4 py-3 text-blue-600 font-bold whitespace-nowrap">{r.rank||"—"}</td>
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.vessel_type||"—"}</td>
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.gt||"—"}</td>
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{fmtDate(r.sign_on)}</td>
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{fmtDate(r.sign_off)}</td>
+                        <td className="px-4 py-3 text-slate-600 font-medium whitespace-nowrap max-w-[150px] truncate" title={r.company}>{r.company||"—"}</td>
                       </tr>
                     ))
                 }
@@ -569,29 +571,28 @@ function UploadModal({ onClose, onImported }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 backdrop-blur-sm sm:items-center p-4" onClick={onClose}>
       <div onClick={(e)=>e.stopPropagation()}
-        className="w-full max-w-md rounded-t-2xl border border-white/10 bg-slate-900 shadow-2xl sm:rounded-xl">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h3 className="text-sm font-semibold text-slate-200">Upload Crew Data</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-300"><X size={16}/></button>
+        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+          <h3 className="text-sm font-bold text-slate-800">Upload Crew Data</h3>
+          <button onClick={onClose} className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"><X size={18}/></button>
         </div>
-        <div className="px-5 py-5">
+        <div className="px-6 py-6">
           <div
             onDragOver={(e)=>{e.preventDefault();setDrag(true);}}
             onDragLeave={()=>setDrag(false)}
             onDrop={(e)=>{e.preventDefault();setDrag(false);handleFiles([...e.dataTransfer.files]);}}
             onClick={()=>ref.current?.click()}
-            className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed py-10 text-center transition ${
-              drag?"border-teal-400 bg-teal-500/5":"border-white/15 hover:border-white/25"}`}>
-            <div className="flex gap-3">
-              <Upload size={22} className="text-teal-500"/>
-              <FileImage size={22} className="text-purple-400"/>
+            className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed py-10 text-center transition-all ${
+              drag?"border-blue-500 bg-blue-50":"border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50"}`}>
+            <div className="flex gap-4">
+              <div className="rounded-full bg-blue-100 p-3 text-blue-600"><Upload size={24}/></div>
             </div>
-            <p className="text-sm font-medium text-slate-300">Tap or drag files here</p>
-            <p className="text-xs text-slate-500">
+            <p className="mt-2 text-sm font-bold text-slate-700">Tap or drag files here</p>
+            <p className="text-xs font-medium text-slate-500">
               Excel (.xlsx) · Word (.docx) · CSV<br/>
-              PDF · Image (JPG, PNG, WEBP)
+              PDF · Image (JPG, PNG)
             </p>
             <input ref={ref} type="file" multiple
               accept=".xlsx,.xls,.csv,.docx,.pdf,.jpg,.jpeg,.png,.webp,.gif"
@@ -600,31 +601,31 @@ function UploadModal({ onClose, onImported }) {
           </div>
 
           {busy && (
-            <div className="mt-3 flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2.5 text-xs text-slate-400">
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-teal-500 border-t-transparent shrink-0"/>
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs font-bold text-blue-700 shadow-sm">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent shrink-0"/>
               {progress || "Processing…"}
             </div>
           )}
 
           {log && (
-            <div className={`mt-3 flex gap-2 rounded-lg px-3 py-2.5 text-xs ${
-              log.error?"bg-amber-500/10 text-amber-300":"bg-teal-500/10 text-teal-300"}`}>
-              {log.error && <AlertTriangle size={14} className="mt-0.5 shrink-0"/>}
+            <div className={`mt-4 flex gap-3 rounded-xl border px-4 py-3 text-xs font-bold shadow-sm ${
+              log.error?"border-red-100 bg-red-50 text-red-700":"border-green-100 bg-green-50 text-green-700"}`}>
+              {log.error && <AlertTriangle size={16} className="shrink-0"/>}
               <div>
-                {log.added > 0 && <p>{log.added} crew record{log.added>1?"s":""} imported.</p>}
-                {log.error && <p>{log.error}</p>}
+                {log.added > 0 && <p className="mb-1">{log.added} crew record{log.added>1?"s":""} imported successfully.</p>}
+                {log.error && <p className="font-medium text-red-600 opacity-90">{log.error}</p>}
               </div>
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] text-slate-500">
-            <div className="rounded-lg bg-white/5 px-3 py-2">
-              <p className="mb-1 font-semibold text-slate-400">Excel / Word / CSV</p>
-              <p>Uses template format with labeled sections (Name, COC, Experience…)</p>
+          <div className="mt-6 grid grid-cols-2 gap-3 text-[11px] text-slate-500">
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <p className="mb-1 font-bold text-slate-700">Template Files</p>
+              <p className="leading-relaxed">Uses structured format with sections (Name, Experience, etc)</p>
             </div>
-            <div className="rounded-lg bg-white/5 px-3 py-2">
-              <p className="mb-1 font-semibold text-slate-400">PDF / Image</p>
-              <p>AI reads any layout — CV, scanned doc, or photo of certificate</p>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <p className="mb-1 font-bold text-slate-700">AI Extraction</p>
+              <p className="leading-relaxed">DeepSeek reads any PDF/Word format automatically</p>
             </div>
           </div>
         </div>
@@ -645,16 +646,16 @@ function CrewRow({ crew, onSelect, index }) {
   return (
     <button
       onClick={()=>onSelect(crew.id)}
-      className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition active:bg-white/5 hover:bg-white/[0.03]"
+      className="flex w-full items-center gap-4 border-b border-slate-100 px-5 py-4 text-left transition-colors active:bg-slate-100 hover:bg-slate-50"
     >
-      <span className="w-5 shrink-0 font-mono text-[10px] text-slate-600">{String(index+1).padStart(2,"0")}</span>
+      <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400">{String(index+1).padStart(2,"0")}</span>
       <Avatar name={crew.name}/>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-slate-100">{crew.name||"(no name)"}</p>
-        <p className="truncate text-xs text-slate-400">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
+        <p className="truncate text-sm font-bold text-slate-800">{crew.name||"(no name)"}</p>
+        <p className="truncate text-xs font-medium text-slate-500 mt-0.5">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
       </div>
-      <p className="hidden max-w-[180px] shrink-0 truncate text-xs text-slate-500 lg:block">{sub}</p>
-      <ChevronDown size={14} className="shrink-0 -rotate-90 text-slate-600"/>
+      <p className="hidden max-w-[180px] shrink-0 truncate text-xs text-slate-400 lg:block">{sub}</p>
+      <ChevronDown size={16} className="shrink-0 -rotate-90 text-slate-400"/>
     </button>
   );
 }
@@ -783,51 +784,53 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-900">
 
       {/* List */}
-      <div className={`flex flex-col border-r border-white/10 ${isMobile?"hidden md:flex md:w-96":"flex w-full md:w-96"}`}>
-        <div className="shrink-0 border-b border-white/10 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Anchor size={16} className="text-teal-500"/>
-            <span className="text-sm font-semibold">Crew Database</span>
-            <span className="ml-auto rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">{crews.length}</span>
+      <div className={`flex flex-col border-r border-slate-200 bg-white shadow-sm z-10 ${isMobile?"hidden md:flex md:w-96":"flex w-full md:w-96"}`}>
+        <div className="shrink-0 border-b border-slate-200 px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="rounded-lg bg-blue-50 p-1.5 text-blue-600">
+              <Anchor size={18} />
+            </div>
+            <span className="text-base font-bold text-slate-800">Crew Database</span>
+            <span className="ml-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-500">{crews.length}</span>
           </div>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-4 flex gap-3">
             <div className="relative flex-1">
-              <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
+              <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
               <input value={query} onChange={(e)=>setQuery(e.target.value)}
                 placeholder="Search name, phone, passport…"
-                className="w-full rounded-lg border border-white/10 bg-slate-900 py-2 pl-8 pr-3 text-xs text-slate-200 outline-none placeholder:text-slate-600 focus:border-teal-500/50"/>
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"/>
             </div>
             <button onClick={()=>setShowUpload(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 text-xs font-semibold text-white hover:bg-teal-500">
-              <Upload size={13}/> Upload
+              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700 shadow-sm transition-colors active:scale-95">
+              <Upload size={14}/> Upload
             </button>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             <select value={filterRank} onChange={(e)=>setFilterRank(e.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm">
               <option value="">All Ranks</option>
               {rankOptions.map((r)=><option key={r} value={r}>{r}</option>)}
             </select>
             <select value={filterVessel} onChange={(e)=>setFilterVessel(e.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm">
               <option value="">All Vessels</option>
               {vesselOptions.map((v)=><option key={v} value={v}>{v}</option>)}
             </select>
             <select value={filterCoc} onChange={(e)=>setFilterCoc(e.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm">
               <option value="">All COC (Ijazah)</option>
               {cocOptions.map((v)=><option key={v} value={v}>{v}</option>)}
             </select>
             <select value={filterDom} onChange={(e)=>setFilterDom(e.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50">
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm">
               <option value="">All Domisili</option>
               {domisiliOptions.map((v)=><option key={v} value={v}>{v}</option>)}
             </select>
             <select value={filterAge} onChange={(e)=>setFilterAge(e.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-800 px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-teal-500/50 col-span-2">
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm col-span-2">
               <option value="">All Ages (Umur)</option>
               <option value="25">Max 25 years old</option>
               <option value="30">Max 30 years old</option>
@@ -841,7 +844,7 @@ export default function App() {
           {(filterRank||filterVessel||filterCoc||filterAge||filterDom)&&(
             <div className="mt-2">
               <button onClick={()=>{setFilterRank("");setFilterVessel("");setFilterCoc("");setFilterAge("");setFilterDom("");}}
-                className="w-full rounded-lg border border-white/10 bg-white/5 py-1 text-[10px] text-slate-400 hover:text-slate-200">
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
                 Clear All Filters
               </button>
             </div>
@@ -849,7 +852,7 @@ export default function App() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.length===0
-            ? <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-600"><User size={24}/><p className="text-xs">No crew found.</p></div>
+            ? <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400"><User size={32}/><p className="text-sm font-medium">No crew found.</p></div>
             : filtered.map((c,i)=><CrewRow key={c.id} crew={c} index={i} onSelect={setSelectedId}/>)
           }
         </div>
