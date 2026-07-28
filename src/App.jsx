@@ -31,6 +31,15 @@ const RANK_ALIASES = [
   { standard: "Cook", patterns: [/^cook$/i, /^chief\s+cook$/i, /^koki$/i] },
   { standard: "Messboy", patterns: [/^mess\s*boy$/i, /^pelayan$/i] },
   { standard: "Boatswain", patterns: [/^boatswain$/i, /^bosun$/i] },
+  { standard: "Chief Engineer", patterns: [/^c\s*e$/i, /^c\s*\/\s*e$/i, /^chief\s+eng(?:ineer)?$/i, /^kkm$/i] },
+  { standard: "1st Engineer", patterns: [/^1st\s+eng(?:ineer)?$/i, /^masinis\s*(?:1|i)$/i] },
+  { standard: "2nd Engineer", patterns: [/^2nd\s+eng(?:ineer)?$/i, /^masinis\s*(?:2|ii)$/i] },
+  { standard: "3rd Engineer", patterns: [/^3rd\s+eng(?:ineer)?$/i, /^masinis\s*(?:3|iii)$/i] },
+  { standard: "4th Engineer", patterns: [/^4th\s+eng(?:ineer)?$/i, /^masinis\s*(?:4|iv)$/i] },
+  { standard: "Oiler", patterns: [/^oiler$/i] },
+  { standard: "Fitter", patterns: [/^fitter$/i] },
+  { standard: "Electrician", patterns: [/^elect$/i, /^electrician$/i] },
+  { standard: "Wiper", patterns: [/^wiper$/i] },
 ];
 
 function normalizeRank(value) {
@@ -83,6 +92,15 @@ IMPORTANT INSTRUCTIONS:
 - Chief Cook, Koki -> "Cook"
 - Pelayan -> "Messboy"
 - Bosun -> "Boatswain"
+- CE, C/E, Chief Eng, KKM -> "Chief Engineer"
+- Masinis 1, Masinis I, 1st Eng -> "1st Engineer"
+- Masinis 2, Masinis II, 2nd Eng -> "2nd Engineer"
+- Masinis 3, Masinis III, 3rd Eng -> "3rd Engineer"
+- Masinis 4, Masinis IV, 4th Eng -> "4th Engineer"
+- Oiler -> "Oiler"
+- Fitter -> "Fitter"
+- Elect, Electrician -> "Electrician"
+- Wiper -> "Wiper"
 
 {
   "name": "",
