@@ -407,9 +407,22 @@ function Block({ title, children }) {
   );
 }
 
+function getLatestExperience(experience = []) {
+  return [...experience].sort((a, b) => {
+    const aOngoing = a.sign_on && !a.sign_off;
+    const bOngoing = b.sign_on && !b.sign_off;
+    if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+
+    const aDate = new Date(a.sign_off || a.sign_on || 0).getTime() || 0;
+    const bDate = new Date(b.sign_off || b.sign_on || 0).getTime() || 0;
+    return bDate - aDate;
+  })[0];
+}
+
 function DetailPanel({ crew, onClose, onDelete, isMobile }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   if (!crew) return null;
+  const latestExperience = getLatestExperience(crew.experience);
   const info = (label, value) => (
     <div className="flex items-start gap-3 py-2 text-sm">
       <span className="w-32 shrink-0 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{label}</span>
@@ -437,7 +450,7 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
         <Avatar name={crew.name}/>
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-bold text-slate-800 dark:text-slate-100">{crew.name||"—"}</p>
-          <p className="truncate text-xs font-medium text-blue-600 dark:text-blue-400">{crew.experience[0]?.rank || crew.coc[0]?.name || "Crew Member"}</p>
+          <p className="truncate text-xs font-medium text-blue-600 dark:text-blue-400">{latestExperience?.rank || crew.coc[0]?.name || "Crew Member"}</p>
         </div>
         <button
           onClick={() => setShowDeleteConfirm(true)}
@@ -682,17 +695,7 @@ function UploadModal({ onClose, onImported }) {
 }
 
 function CrewRow({ crew, onSelect, index }) {
-  // Ambil pengalaman terakhir berdasarkan tanggal sign-off terbaru.
-  // Jika masih onboard (sign_off kosong), pengalaman tersebut dianggap paling baru.
-  const latestExperience = [...(crew.experience || [])].sort((a, b) => {
-    const aOngoing = a.sign_on && !a.sign_off;
-    const bOngoing = b.sign_on && !b.sign_off;
-    if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
-
-    const aDate = new Date(a.sign_off || a.sign_on || 0).getTime() || 0;
-    const bDate = new Date(b.sign_off || b.sign_on || 0).getTime() || 0;
-    return bDate - aDate;
-  })[0];
+  const latestExperience = getLatestExperience(crew.experience);
 
   const expRank = latestExperience?.rank;
   const certRank = crew.coc[0]?.name || crew.coe[0]?.name;
