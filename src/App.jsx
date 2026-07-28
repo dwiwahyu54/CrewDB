@@ -669,7 +669,7 @@ function CrewRow({ crew, onSelect, index }) {
       <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400 dark:text-[#62666d]">{String(index+1).padStart(2,"0")}</span>
       <Avatar name={crew.name}/>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
+        <p className="break-words text-sm font-bold leading-5 text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
         <p className="truncate text-xs font-medium text-slate-500 dark:text-[#8a8f98] mt-0.5">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
       </div>
       <p className="hidden max-w-[180px] shrink-0 truncate text-xs text-slate-400 lg:block">{sub}</p>
