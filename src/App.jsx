@@ -71,8 +71,9 @@ IMPORTANT INSTRUCTIONS:
 - "Dynamic Positioning Operator" -> "DPO"
 - "Basic Offshore Safety Induction" -> "BOSIET"
 - "Helicopter Underwater Escape" -> "HUET"
-2. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
-3. Standardize every experience rank using these exact values:
+2. For address, keep the complete address in "address", but put only the city/regency name in "city". Remove prefixes such as Kota, Kab., Kabupaten, City, or Regency. Examples: "Kab. Blora" -> "Blora", "Kota Semarang" -> "Semarang", "Jakarta Selatan" -> "Jakarta Selatan".
+3. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
+4. Standardize every experience rank using these exact values:
 - 3O, 3/O, 3rd Off, Mualim 3, Mualim III, 3rd Mate -> "3rd Officer"
 - 2O, 2/O, 2nd Off, Mualim 2, Mualim II, 2nd Mate -> "2nd Officer"
 - 1/O, Mualim 1, Chief Off, Chieff Mate, Chief Mate -> "Chief Officer"
@@ -88,6 +89,7 @@ IMPORTANT INSTRUCTIONS:
   "dob": "YYYY-MM-DD or empty string",
   "phone": "",
   "address": "",
+  "city": "City or regency only, e.g. Jakarta, Semarang, Surabaya, Blora",
   "passport_no": "",
   "passport_exp": "YYYY-MM-DD or empty string",
   "seaman_no": "",
@@ -179,6 +181,7 @@ function jsonToCrew(json) {
   crew.dob         = json.dob         || "";
   crew.phone       = json.phone       || "";
   crew.address     = json.address     || "";
+  crew.city        = json.city        || "";
   crew.passport_no  = json.passport_no  || "";
   crew.passport_exp = json.passport_exp || "";
   crew.seaman_no    = json.seaman_no    || "";
@@ -773,6 +776,7 @@ const SEED = {
   dob: "1993-04-04",
   phone: "+6281210307224",
   address: "RT.04 RW 08, Kec. Jepon, Kab. Blora, Central Java",
+  city: "Blora",
   passport_no: "C0253072",
   passport_exp: "2023-05-07",
   seaman_no: "B052278",
@@ -861,14 +865,10 @@ export default function App() {
     return [...s].sort();
   },[crews]);
 
-  const domisiliOptions = useMemo(()=>{
+  const cityOptions = useMemo(()=>{
     const s = new Set();
     crews.forEach((c)=>{
-      if(c.address) {
-        // Ambil kota/provinsi utama (kata pertama sebelum koma atau seluruh string jika pendek)
-        const city = c.address.split(',')[0].trim();
-        if(city.length > 2) s.add(city);
-      }
+      if (c.city) s.add(c.city.trim());
     });
     return [...s].sort();
   },[crews]);
@@ -903,7 +903,7 @@ export default function App() {
         if (age > parseInt(filterAge, 10)) return false;
       }
       if (filterDom) {
-        if (!c.address || !c.address.toLowerCase().includes(filterDom.toLowerCase())) return false;
+        if (!c.city || c.city.toLowerCase() !== filterDom.toLowerCase()) return false;
       }
       return true;
     });
@@ -987,8 +987,8 @@ export default function App() {
             </select>
             <select value={filterDom} onChange={(e)=>setFilterDom(e.target.value)}
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-colors">
-              <option value="">All Domisili</option>
-              {domisiliOptions.map((v)=><option key={v} value={v}>{v}</option>)}
+              <option value="">All Cities (Kota)</option>
+              {cityOptions.map((v)=><option key={v} value={v}>{v}</option>)}
             </select>
             <select value={filterAge} onChange={(e)=>setFilterAge(e.target.value)}
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm col-span-2 transition-colors">
