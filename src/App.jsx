@@ -21,6 +21,25 @@ const COP_FIXED = [
   "DP BASIC", "DP ADVANCE", "DPO", "BOSIET", "HUET"
 ];
 
+const RANK_ALIASES = [
+  { standard: "3rd Officer", patterns: [/^3\s*o$/i, /^3\s*\/\s*o$/i, /^3rd\s+off(?:icer)?$/i, /^3rd\s+mate$/i, /^mualim\s*(?:3|iii)$/i] },
+  { standard: "2nd Officer", patterns: [/^2\s*o$/i, /^2\s*\/\s*o$/i, /^2nd\s+off(?:icer)?$/i, /^2nd\s+mate$/i, /^mualim\s*(?:2|ii)$/i] },
+  { standard: "Chief Officer", patterns: [/^1\s*\/\s*o$/i, /^chief\s+off(?:icer)?$/i, /^chief{1,2}\s+mate$/i, /^mualim\s*(?:1|i)$/i] },
+  { standard: "Master", patterns: [/^master$/i, /^na[hk]k?oda$/i, /^captain$/i, /^kapten$/i] },
+  { standard: "AB", patterns: [/^a\s*\/\s*b$/i, /^ab$/i, /^jurumudi$/i, /^able\s+(?:bodied?|body)(?:\s+seaman)?$/i] },
+  { standard: "OS", patterns: [/^o\s*\/\s*s$/i, /^os$/i, /^kelasi$/i, /^ordinary\s+seaman$/i] },
+  { standard: "Cook", patterns: [/^cook$/i, /^chief\s+cook$/i, /^koki$/i] },
+  { standard: "Messboy", patterns: [/^mess\s*boy$/i, /^pelayan$/i] },
+  { standard: "Boatswain", patterns: [/^boatswain$/i, /^bosun$/i] },
+];
+
+function normalizeRank(value) {
+  const rank = String(value || "").trim().replace(/\s+/g, " ");
+  if (!rank) return "";
+  const alias = RANK_ALIASES.find(({ patterns }) => patterns.some((pattern) => pattern.test(rank)));
+  return alias?.standard || rank;
+}
+
 const EXTRACTION_PROMPT = `Extract maritime crew data from this document/image.
 Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation).
 IMPORTANT INSTRUCTIONS:
@@ -53,6 +72,16 @@ IMPORTANT INSTRUCTIONS:
 - "Basic Offshore Safety Induction" -> "BOSIET"
 - "Helicopter Underwater Escape" -> "HUET"
 2. For Experience: Make sure to extract the Company/Agent (sometimes labeled "COMPANY AGENT", "Owner", or "Manning"). Put it in the "company" field. Extract Gross Tonnage into "gt" if available.
+3. Standardize every experience rank using these exact values:
+- 3O, 3/O, 3rd Off, Mualim 3, Mualim III, 3rd Mate -> "3rd Officer"
+- 2O, 2/O, 2nd Off, Mualim 2, Mualim II, 2nd Mate -> "2nd Officer"
+- 1/O, Mualim 1, Chief Off, Chieff Mate, Chief Mate -> "Chief Officer"
+- Nahkoda, Nakhoda, Captain, Kapten -> "Master"
+- Jurumudi, Able Body, A/B -> "AB"
+- Kelasi -> "OS"
+- Chief Cook, Koki -> "Cook"
+- Pelayan -> "Messboy"
+- Bosun -> "Boatswain"
 
 {
   "name": "",
@@ -166,7 +195,7 @@ function jsonToCrew(json) {
       crew.cop.push({ id: uid(), name: c.name, issued: c.issued || "", expired: c.expired || "" });
   });
   crew.experience = (json.experience || []).map((e) => ({
-    id: uid(), vessel: e.vessel || "", rank: e.rank || "",
+    id: uid(), vessel: e.vessel || "", rank: normalizeRank(e.rank),
     vessel_type: e.vessel_type || "", gt: e.gt || "", company: e.company || "", sign_on: e.sign_on || "", sign_off: e.sign_off || "",
   }));
   return crew;
@@ -214,7 +243,7 @@ function parseBlockSheet(rows) {
       else crew.cop.push({ id: uid(), name: c0, expired: parseDate(c1) });
     }
     else if (section === "exp" && c0) {
-      if (c4) crew.experience.push({ id: uid(), vessel:c0, rank:c1, vessel_type:c2, sign_on:parseDate(c3), sign_off:parseDate(c4) });
+      if (c4) crew.experience.push({ id: uid(), vessel:c0, rank:normalizeRank(c1), vessel_type:c2, sign_on:parseDate(c3), sign_off:parseDate(c4) });
       else    crew.experience.push({ id: uid(), vessel:c0, rank:"", vessel_type:c1, sign_on:parseDate(c2), sign_off:parseDate(c3) });
     }
   }
