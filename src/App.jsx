@@ -408,6 +408,7 @@ function Block({ title, children }) {
 }
 
 function DetailPanel({ crew, onClose, onDelete, isMobile }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   if (!crew) return null;
   const info = (label, value) => (
     <div className="flex items-start gap-3 py-2 text-sm">
@@ -439,10 +440,7 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
           <p className="truncate text-xs font-medium text-blue-600 dark:text-blue-400">{crew.experience[0]?.rank || crew.coc[0]?.name || "Crew Member"}</p>
         </div>
         <button
-          onClick={() => {
-            const confirmed = window.confirm(`Anda yakin ingin menghapus data ${crew.name || "crew ini"}?`);
-            if (confirmed) onDelete(crew.id);
-          }}
+          onClick={() => setShowDeleteConfirm(true)}
           className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400 transition-colors"
           title="Hapus data crew"
         >
@@ -549,6 +547,47 @@ function DetailPanel({ crew, onClose, onDelete, isMobile }) {
           </div>
         </Block>
       </div>
+
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/[0.08] dark:bg-[#191a1b]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="px-6 pb-4 pt-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                <Trash2 size={22}/>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-[#f7f8f8]">Hapus data crew?</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-[#8a8f98]">
+                Data <span className="font-semibold text-slate-700 dark:text-[#d0d6e0]">{crew.name || "crew ini"}</span> akan dihapus dari daftar.
+              </p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-[#62666d]">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 border-t border-slate-100 bg-slate-50/70 p-4 dark:border-white/[0.06] dark:bg-black/10">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-[#d0d6e0] dark:hover:bg-white/[0.07]"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  onDelete(crew.id);
+                }}
+                className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 active:scale-[0.98] dark:bg-red-500 dark:hover:bg-red-600"
+              >
+                Ya, hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
