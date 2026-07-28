@@ -643,13 +643,23 @@ function UploadModal({ onClose, onImported }) {
 }
 
 function CrewRow({ crew, onSelect, index }) {
-  // rank from experience, not COC/COE
-  const expRank = crew.experience[0]?.rank;
+  // Ambil pengalaman terakhir berdasarkan tanggal sign-off terbaru.
+  // Jika masih onboard (sign_off kosong), pengalaman tersebut dianggap paling baru.
+  const latestExperience = [...(crew.experience || [])].sort((a, b) => {
+    const aOngoing = a.sign_on && !a.sign_off;
+    const bOngoing = b.sign_on && !b.sign_off;
+    if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+
+    const aDate = new Date(a.sign_off || a.sign_on || 0).getTime() || 0;
+    const bDate = new Date(b.sign_off || b.sign_on || 0).getTime() || 0;
+    return bDate - aDate;
+  })[0];
+
+  const expRank = latestExperience?.rank;
   const certRank = crew.coc[0]?.name || crew.coe[0]?.name;
   const rank = expRank || certRank || "";
-  const lastExp = crew.experience[0];
-  const sub = lastExp
-    ? [lastExp.vessel, lastExp.vessel_type].filter(Boolean).join(" · ")
+  const sub = latestExperience
+    ? [latestExperience.vessel, latestExperience.vessel_type].filter(Boolean).join(" · ")
     : "No experience recorded";
   return (
     <button
