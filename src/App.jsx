@@ -721,15 +721,50 @@ function CrewRow({ crew, onSelect, index }) {
 
 const SEED = {
   ...emptyCrew(),
-  name:"Budi Santoso", dob:"1980-04-12", phone:"0812-3456-7890", address:"Surabaya, East Java",
-  passport_no:"A1234567", passport_exp:"2027-05-10",
-  seaman_no:"C 123456", seaman_exp:"2026-11-01",
-  coc:[{id:uid(),name:"ANT I",expired:"2026-12-12"}],
-  coe:[{id:uid(),name:"ANT I",expired:"2026-12-12"}],
-  cop:COP_FIXED.map((n)=>({id:uid(),name:n,expired:"2027-06-01"})),
-  experience:[
-    {id:uid(),vessel:"Prakarsa Mas",rank:"Master",vessel_type:"Container",sign_on:"2025-01-01",sign_off:"2025-12-31"},
-    {id:uid(),vessel:"MT Patriot Bahagia",rank:"Chief Officer",vessel_type:"Oil Tanker",sign_on:"2026-01-01",sign_off:"2026-04-04"},
+  name: "Dwi Wahyu Setia Utama",
+  dob: "1993-04-04",
+  phone: "+628****7224",
+  address: "RT.04 RW 08, Kec. Jepon, Kab. Blora, Central Java",
+  passport_no: "C0253072",
+  passport_exp: "2023-05-07",
+  seaman_no: "B052278",
+  seaman_exp: "2020-03-22",
+  coc: [
+    { id: uid(), name: "DECK OFF CLASS III", issued: "2015-11-05", expired: "" },
+  ],
+  coe: [
+    { id: uid(), name: "DECK OFF CLASS III", issued: "2015-11-11", expired: "" },
+  ],
+  cop: [
+    ["BST", "2015-08-10"],
+    ["AFF", "2015-08-10"],
+    ["SCRB", "2015-08-10"],
+    ["MFA", "2015-08-10"],
+    ["MC", "2015-08-10"],
+    ["BLGT", "2015-04-27"],
+    ["AOT", "2016-03-29"],
+    ["ACT", "2016-03-21"],
+    ["BOCT", "2015-04-07"],
+    ["RADAR SIMULATOR", "2014-04-28"],
+    ["ARPA SIMULATOR", "2014-04-28"],
+    ["GOC-ORU", "2015-03-31"],
+    ["BRM", "2015-09-07"],
+    ["IMDG CODE", "2015-11-02"],
+    ["SSO", "2015-09-15"],
+    ["GMDSS", "2015-04-15"],
+    ["ECDIS", "2015-10-12"],
+  ].map(([name, issued]) => ({ id: uid(), name, issued, expired: "" })),
+  experience: [
+    {
+      id: uid(), vessel: "MT. Patriot Bahagia", rank: "Deck Cadet",
+      vessel_type: "Tanker", gt: "", company: "PT. Indo Mega Maritim",
+      sign_on: "2013-08-30", sign_off: "2014-09-02",
+    },
+    {
+      id: uid(), vessel: "MV. Tanto Tenang", rank: "3RD OFF",
+      vessel_type: "Container", gt: "", company: "PT. Tanto Intim Line",
+      sign_on: "2016-05-20", sign_off: "2017-12-21",
+    },
   ],
 };
 
