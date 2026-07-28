@@ -8,3 +8,32 @@ body {
   font-family: ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Dark mode dibuat lebih lembut daripada hitam murni agar nyaman dipakai lama. */
+.dark {
+  color-scheme: dark;
+}
+
+.dark ::selection {
+  background: rgba(113, 112, 255, 0.34);
+  color: #f7f8f8;
+}
+
+.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #08090a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #28282c;
+  border: 2px solid #08090a;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3e3e44;
+}

@@ -647,16 +647,16 @@ function CrewRow({ crew, onSelect, index }) {
   return (
     <button
       onClick={()=>onSelect(crew.id)}
-      className="flex w-full items-center gap-4 border-b border-slate-100 px-5 py-4 text-left transition-colors active:bg-slate-100 hover:bg-slate-50"
+      className="flex w-full items-center gap-4 border-b border-slate-100 dark:border-white/[0.05] px-5 py-4 text-left transition-colors active:bg-slate-100 dark:active:bg-white/[0.06] hover:bg-slate-50 dark:hover:bg-white/[0.035]"
     >
-      <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400">{String(index+1).padStart(2,"0")}</span>
+      <span className="w-5 shrink-0 font-mono text-[11px] font-semibold text-slate-400 dark:text-[#62666d]">{String(index+1).padStart(2,"0")}</span>
       <Avatar name={crew.name}/>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-slate-800">{crew.name||"(no name)"}</p>
-        <p className="truncate text-xs font-medium text-slate-500 mt-0.5">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
+        <p className="truncate text-sm font-bold text-slate-800 dark:text-[#f7f8f8]">{crew.name||"(no name)"}</p>
+        <p className="truncate text-xs font-medium text-slate-500 dark:text-[#8a8f98] mt-0.5">{rank||"—"}{crew.phone?` · ${crew.phone}`:""}</p>
       </div>
       <p className="hidden max-w-[180px] shrink-0 truncate text-xs text-slate-400 lg:block">{sub}</p>
-      <ChevronDown size={16} className="shrink-0 -rotate-90 text-slate-400"/>
+      <ChevronDown size={16} className="shrink-0 -rotate-90 text-slate-400 dark:text-[#62666d]"/>
     </button>
   );
 }
@@ -685,7 +685,18 @@ export default function App() {
   const [filterDom,    setFilterDom]    = useState("");
   const [selectedId,   setSelectedId]   = useState(null);
   const [showUpload,   setShowUpload]   = useState(false);
-  const [darkMode,     setDarkMode]     = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("crewdb-theme");
+    return saved ? saved === "dark" : true;
+  });
+
+  const toggleTheme = () => {
+    setDarkMode((current) => {
+      const next = !current;
+      localStorage.setItem("crewdb-theme", next ? "dark" : "light");
+      return next;
+    });
+  };
 
   const rankOptions = useMemo(()=>{
     const s = new Set();
@@ -786,10 +797,10 @@ export default function App() {
   };
 
   return (
-    <div className={`flex h-screen w-screen overflow-hidden font-sans transition-colors ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+    <div className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${darkMode ? 'dark bg-[#08090a] text-[#f7f8f8]' : 'bg-slate-50 text-slate-900'}`}>
 
       {/* List */}
-      <div className={`flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm z-10 transition-colors ${isMobile?"hidden md:flex md:w-96":"flex w-full md:w-96"}`}>
+      <div className={`flex flex-col border-r border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0f1011] shadow-sm dark:shadow-none z-10 transition-colors ${isMobile?"hidden md:flex md:w-96":"flex w-full md:w-96"}`}>
         <div className="shrink-0 border-b border-slate-200 dark:border-slate-800 px-5 py-4 transition-colors">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 p-1.5 text-blue-600 dark:text-blue-400">
@@ -798,8 +809,8 @@ export default function App() {
             <span className="text-base font-bold text-slate-800 dark:text-slate-100">Crew Database</span>
             <span className="ml-auto rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">{crews.length}</span>
             <button 
-              onClick={() => setDarkMode(!darkMode)}
-              className="ml-2 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              onClick={toggleTheme}
+              className="ml-2 rounded-lg border border-transparent dark:border-white/[0.07] p-1.5 text-slate-400 dark:text-[#8a8f98] hover:bg-slate-100 dark:bg-white/[0.025] dark:hover:bg-white/[0.06] dark:hover:text-[#f7f8f8] transition-colors"
               title="Toggle Dark Mode"
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
