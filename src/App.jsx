@@ -378,7 +378,19 @@ async function parseViaAI(file) {
 }
 
 async function handleFile(file) {
-  const ext = file.name.split(".").pop().toLowerCase();
+  const fileName = file.name || "";
+
+  // Microsoft Word membuat file lock sementara dengan awalan "~$".
+  // File tersebut bukan DOCX asli dan tidak dapat diekstrak.
+  if (fileName.startsWith("~$")) {
+    throw new Error(`"${fileName}" adalah file sementara Microsoft Word. Tutup dokumen Word, lalu upload file asli tanpa awalan "~$".`);
+  }
+
+  if (file.size === 0) {
+    throw new Error(`"${fileName}" kosong. Pilih file CV asli.`);
+  }
+
+  const ext = fileName.split(".").pop().toLowerCase();
   if (["xlsx","xls"].includes(ext)) return parseExcel(file);
   if (ext === "csv")               return parseCSV(file);
   // docx dan pdf kita arahkan ke AI Parser
