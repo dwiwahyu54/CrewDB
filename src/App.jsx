@@ -797,7 +797,7 @@ const SEED = {
       sign_on: "2013-08-30", sign_off: "2014-09-02",
     },
     {
-      id: uid(), vessel: "MV. Tanto Tenang", rank: "3RD OFF",
+      id: uid(), vessel: "MV. Tanto Tenang", rank: "3rd Officer",
       vessel_type: "Container", gt: "", company: "PT. Tanto Intim Line",
       sign_on: "2016-05-20", sign_off: "2017-12-21",
     },
