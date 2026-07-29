@@ -733,16 +733,6 @@ function UploadModal({ onClose, onImported }) {
             </div>
           )}
 
-          <div className="mt-6 grid grid-cols-2 gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-            <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3">
-              <p className="mb-1 font-bold text-slate-700 dark:text-slate-300">Template Files</p>
-              <p className="leading-relaxed">Uses structured format with sections (Name, Experience, etc)</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3">
-              <p className="mb-1 font-bold text-slate-700 dark:text-slate-300">AI Extraction</p>
-              <p className="leading-relaxed">DeepSeek reads any PDF/Word format automatically</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
