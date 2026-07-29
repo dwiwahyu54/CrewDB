@@ -831,7 +831,8 @@ export default function App() {
   const [crews,        setCrews]        = useState([SEED]);
   const [query,        setQuery]        = useState("");
   const [filterRank,   setFilterRank]   = useState("");
-  const [filterVessel, setFilterVessel] = useState("");
+  const [filterVessels, setFilterVessels] = useState([]);
+  const [showVesselFilter, setShowVesselFilter] = useState(false);
   const [filterCoc,    setFilterCoc]    = useState("");
   const [filterAge,    setFilterAge]    = useState("");
   const [filterDom,    setFilterDom]    = useState("");
@@ -903,7 +904,7 @@ export default function App() {
         const has=c.experience.some((x)=>x.rank===filterRank);
         if (!has) return false;
       }
-      if (filterVessel&&!c.experience.some((e)=>e.vessel_type===filterVessel)) return false;
+      if (filterVessels.length && !c.experience.some((e)=>filterVessels.includes(e.vessel_type))) return false;
       if (filterCoc&&!c.coc.some((x)=>x.name===filterCoc)) return false;
       if (filterAge) {
         const age = getAge(c.dob);
@@ -914,7 +915,7 @@ export default function App() {
       }
       return true;
     });
-  },[crews,query,filterRank,filterVessel,filterCoc,filterAge,filterDom]);
+  },[crews,query,filterRank,filterVessels,filterCoc,filterAge,filterDom]);
 
   const selected   = crews.find((c)=>c.id===selectedId);
   const deleteCrew = (id)=>{setCrews((p)=>p.filter((c)=>c.id!==id));setSelectedId(null);};
@@ -982,11 +983,50 @@ export default function App() {
               <option value="">All Ranks</option>
               {rankOptions.map((r)=><option key={r} value={r}>{r}</option>)}
             </select>
-            <select value={filterVessel} onChange={(e)=>setFilterVessel(e.target.value)}
-              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-colors">
-              <option value="">All Vessels</option>
-              {vesselOptions.map((v)=><option key={v} value={v}>{v}</option>)}
-            </select>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={()=>setShowVesselFilter((open)=>!open)}
+                className="flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-left text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none shadow-sm transition-colors hover:border-blue-400"
+              >
+                <span className="truncate">
+                  {filterVessels.length ? `${filterVessels.length} Vessel Types` : "All Vessels"}
+                </span>
+                <ChevronDown size={13} className={`shrink-0 transition-transform ${showVesselFilter ? "rotate-180" : ""}`}/>
+              </button>
+
+              {showVesselFilter && (
+                <div className="absolute left-0 right-0 top-full z-40 mt-1 max-h-56 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-xl dark:border-white/[0.08] dark:bg-[#191a1b]">
+                  {vesselOptions.length === 0
+                    ? <p className="px-2 py-2 text-[11px] text-slate-400">No vessel types</p>
+                    : vesselOptions.map((vessel)=>(
+                      <label key={vessel} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-[11px] text-slate-600 hover:bg-slate-50 dark:text-[#d0d6e0] dark:hover:bg-white/[0.05]">
+                        <input
+                          type="checkbox"
+                          checked={filterVessels.includes(vessel)}
+                          onChange={()=>setFilterVessels((current)=>
+                            current.includes(vessel)
+                              ? current.filter((item)=>item!==vessel)
+                              : [...current, vessel]
+                          )}
+                          className="h-3.5 w-3.5 rounded border-slate-300 accent-blue-600"
+                        />
+                        <span className="truncate">{vessel}</span>
+                      </label>
+                    ))
+                  }
+                  {filterVessels.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={()=>setFilterVessels([])}
+                      className="mt-1 w-full rounded-md border-t border-slate-100 px-2 py-2 text-left text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:border-white/[0.06] dark:text-blue-400 dark:hover:bg-blue-500/10"
+                    >
+                      Clear vessel selection
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
             <select value={filterCoc} onChange={(e)=>setFilterCoc(e.target.value)}
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-colors">
               <option value="">All COC (Ijazah)</option>
@@ -1009,9 +1049,9 @@ export default function App() {
               <option value="55">Max 55 years old</option>
             </select>
           </div>
-          {(filterRank||filterVessel||filterCoc||filterAge||filterDom)&&(
+          {(filterRank||filterVessels.length||filterCoc||filterAge||filterDom)&&(
             <div className="mt-2">
-              <button onClick={()=>{setFilterRank("");setFilterVessel("");setFilterCoc("");setFilterAge("");setFilterDom("");}}
+              <button onClick={()=>{setFilterRank("");setFilterVessels([]);setShowVesselFilter(false);setFilterCoc("");setFilterAge("");setFilterDom("");}}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 Clear All Filters
               </button>
