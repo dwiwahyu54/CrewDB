@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import mammoth from "mammoth";
@@ -833,6 +833,7 @@ export default function App() {
   const [filterRank,   setFilterRank]   = useState("");
   const [filterVessels, setFilterVessels] = useState([]);
   const [showVesselFilter, setShowVesselFilter] = useState(false);
+  const vesselFilterRef = useRef(null);
   const [filterCoc,    setFilterCoc]    = useState("");
   const [filterAge,    setFilterAge]    = useState("");
   const [filterDom,    setFilterDom]    = useState("");
@@ -850,6 +851,19 @@ export default function App() {
       return next;
     });
   };
+
+  useEffect(() => {
+    if (!showVesselFilter) return undefined;
+
+    const closeOnOutsideClick = (event) => {
+      if (vesselFilterRef.current && !vesselFilterRef.current.contains(event.target)) {
+        setShowVesselFilter(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [showVesselFilter]);
 
   const rankOptions = useMemo(()=>{
     const s = new Set();
@@ -983,7 +997,7 @@ export default function App() {
               <option value="">All Ranks</option>
               {rankOptions.map((r)=><option key={r} value={r}>{r}</option>)}
             </select>
-            <div className="relative">
+            <div ref={vesselFilterRef} className="relative">
               <button
                 type="button"
                 onClick={()=>setShowVesselFilter((open)=>!open)}
